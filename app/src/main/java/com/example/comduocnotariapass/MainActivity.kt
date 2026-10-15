@@ -18,6 +18,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.comduocnotariapass.model.LoginScreen
+import com.example.comduocnotariapass.model.MisTramitesScreen
+import com.example.comduocnotariapass.model.NuevoTramiteScreen
+import com.example.comduocnotariapass.model.RegisterScreen
 import com.example.comduocnotariapass.ui.theme.ComduocNotariaPassTheme
 
 // Enum o Sealed Class para definir tus pantallas
@@ -58,7 +61,36 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        else -> {}
+                        Pantalla.REGISTRO -> {
+                            RegisterScreen(
+                                onRegisterSuccess = {
+                                    // Al completarse el registro, podemos ir a "Mis Trámites" o "Login"
+                                    pantallaActual = Pantalla.MIS_TRAMITES
+                                },
+                                onBackToLogin = {
+                                    pantallaActual = Pantalla.LOGIN
+                                }
+                            )
+                        }
+
+                        Pantalla.MIS_TRAMITES -> {
+                            MisTramitesScreen(
+                                onNuevoTramiteClick = {
+                                    pantallaActual = Pantalla.NUEVO_TRAMITE
+                                }
+                            )
+                        }
+
+                        Pantalla.NUEVO_TRAMITE -> {
+                            NuevoTramiteScreen(
+                                onContinuarRevisionClick = {
+                                    // Lógica o siguiente pantalla
+                                },
+                                onBackClick = {
+                                    pantallaActual = Pantalla.MIS_TRAMITES
+                                }
+                            )
+                        }
                     }
                 }
             }
