@@ -1,4 +1,4 @@
-package com.example.comduocnotariapass.model
+package com.example.comduocnotariapass.viewmodel
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -7,20 +7,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun RegisterScreen(
-    onRegisterSuccess: () -> Unit,
-    onBackToLogin: () -> Unit
+fun LoginScreen(
+    onLoginClick: () -> Unit,
+    onDemoClick: () -> Unit,
+    onRegisterClick: () -> Unit
 ) {
-    var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -30,21 +29,23 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("NotariaX", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Text("Crea tu cuenta", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-        Text("Prepara una cuenta de prueba para explorar tus trámites en NotariaX.", fontSize = 12.sp)
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre de prueba") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Tus trámites, paso a paso.", fontWeight = FontWeight.Bold)
+                Text("Notaría digital en Chile", fontSize = 12.sp)
+            }
+        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+        Text("Te damos la bienvenida", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("Accede con tu cuenta de prueba o explora el recorrido en modo demo.", fontSize = 12.sp)
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = email,
@@ -63,29 +64,28 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirmar contraseña de prueba") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onRegisterSuccess,
+            onClick = onLoginClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Crear cuenta de prueba")
+            Text("Ingresar con cuenta de prueba")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = onBackToLogin) {
-            Text("¿Ya tienes cuenta? Iniciar sesión")
+        OutlinedButton(
+            onClick = onDemoClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Entrar al modo demo")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextButton(onClick = onRegisterClick) {
+            Text("¿No tienes cuenta? Registrate aquí")
         }
     }
 }
