@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun RegisterScreen(
-    onRegisterSuccess: () -> Unit,
+    onRegisterSuccess: (String, String, String) -> Unit,
     onBackToLogin: () -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
@@ -76,7 +76,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = onRegisterSuccess,
+            onClick = { onRegisterSuccess(nombre, email, password) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Crear cuenta de prueba")

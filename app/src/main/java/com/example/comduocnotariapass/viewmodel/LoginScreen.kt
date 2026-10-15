@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
+    onLoginClick: (String, String) -> Unit,
     onDemoClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf("") }
+    var clave by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -48,8 +48,8 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = correo,
+            onValueChange = { correo = it },
             label = { Text("Correo de prueba") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -57,8 +57,8 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = clave,
+            onValueChange = { clave = it },
             label = { Text("Contraseña de prueba") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
@@ -67,7 +67,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onLoginClick,
+            onClick = { onLoginClick(correo, clave) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Ingresar con cuenta de prueba")

@@ -1,4 +1,5 @@
 package com.example.comduocnotariapass.viewmodel
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +12,7 @@ class MainViewModel : ViewModel() {
     var pantallaActual by mutableStateOf(Pantalla.LOGIN)
         private set
 
-    // --- ACCIONES DE CLIC (BUTTON CLICKS) ---
+    // ACCIONES DE CLIC (BUTTON CLICKS)
 
     // LoginScreen Clicks
     fun onLoginClick(correo: String, clave: String) {

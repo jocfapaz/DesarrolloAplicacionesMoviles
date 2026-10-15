@@ -4,27 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.comduocnotariapass.model.Pantalla
+import com.example.comduocnotariapass.model.TramiteModel
 import com.example.comduocnotariapass.viewmodel.LoginScreen
 import com.example.comduocnotariapass.viewmodel.MisTramitesScreen
 import com.example.comduocnotariapass.viewmodel.NuevoTramiteScreen
 import com.example.comduocnotariapass.viewmodel.RegisterScreen
 import com.example.comduocnotariapass.ui.theme.ComduocNotariaPassTheme
+import com.example.comduocnotariapass.viewmodel.MainViewModel
 
-// Enum o Sealed Class para definir tus pantallas
-enum class Pantalla {
-    LOGIN,
-    REGISTRO,
-    MIS_TRAMITES,
-    NUEVO_TRAMITE
-}
 
 class MainActivity : ComponentActivity() {
+
+    // Instancia del ViewModel
+    private val mainViewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,36 +33,30 @@ class MainActivity : ComponentActivity() {
             ComduocNotariaPassTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
 
-                    // Variable de estado que guarda cuál pantalla se está mostrando actualmente
-                    var pantallaActual by remember { mutableStateOf(Pantalla.LOGIN) }
+                    // Renderiza la pantalla según el estado del ViewModel
+                    when (mainViewModel.pantallaActual) {
 
-                    // Según la pantalla actual, renderizamos el composable correspondiente
-                    when (pantallaActual) {
                         Pantalla.LOGIN -> {
                             LoginScreen(
-                                onLoginClick = {
-                                    // Al iniciar sesión, navegamos a "Mis Trámites"
-                                    pantallaActual = Pantalla.MIS_TRAMITES
+                                onLoginClick = { correo, clave ->
+                                    mainViewModel.onLoginClick(correo, clave)
                                 },
                                 onDemoClick = {
-                                    // Al entrar en modo demo, navegamos a "Mis Trámites"
-                                    pantallaActual = Pantalla.MIS_TRAMITES
+                                    mainViewModel.onEntrarModoDemoClick()
                                 },
                                 onRegisterClick = {
-                                    // Al presionar registrarse, navegamos a "Registro"
-                                    pantallaActual = Pantalla.REGISTRO
+                                    mainViewModel.onIrARegistroClick()
                                 }
                             )
                         }
 
                         Pantalla.REGISTRO -> {
                             RegisterScreen(
-                                onRegisterSuccess = {
-                                    // Al completarse el registro, podemos ir a "Mis Trámites" o "Login"
-                                    pantallaActual = Pantalla.MIS_TRAMITES
+                                onRegisterSuccess = { nombre, correo, clave ->
+                                    mainViewModel.onCrearCuentaClick(nombre, correo, clave)
                                 },
                                 onBackToLogin = {
-                                    pantallaActual = Pantalla.LOGIN
+                                    mainViewModel.onVolverALoginClick()
                                 }
                             )
                         }
@@ -69,7 +64,7 @@ class MainActivity : ComponentActivity() {
                         Pantalla.MIS_TRAMITES -> {
                             MisTramitesScreen(
                                 onNuevoTramiteClick = {
-                                    pantallaActual = Pantalla.NUEVO_TRAMITE
+                                    mainViewModel.onNuevoTramiteClick()
                                 }
                             )
                         }
@@ -77,10 +72,10 @@ class MainActivity : ComponentActivity() {
                         Pantalla.NUEVO_TRAMITE -> {
                             NuevoTramiteScreen(
                                 onContinuarRevisionClick = {
-                                    // Lógica o siguiente pantalla
+                                    mainViewModel.onContinuarRevisionClick()
                                 },
                                 onBackClick = {
-                                    pantallaActual = Pantalla.MIS_TRAMITES
+                                    mainViewModel.onVolverAMisTramitesClick()
                                 }
                             )
                         }
