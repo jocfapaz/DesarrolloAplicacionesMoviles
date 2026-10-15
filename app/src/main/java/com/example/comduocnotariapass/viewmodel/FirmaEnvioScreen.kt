@@ -8,7 +8,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,8 +20,11 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun FirmaEnvioScreen(
-    onBackClick: () -> Unit,
-    onEnviarNotario: () -> Unit
+    onEnviarNotario: () -> Unit,
+    puedeVolver: Boolean,
+    puedeAvanzar: Boolean,
+    onVolver: () -> Unit,
+    onAvanzar: () -> Unit
 ) {
     var selectedFirma by remember { mutableStateOf(2) } // 0: Simple, 1: Avanzada, 2: Notariada
     var entiendoCheckbox by remember { mutableStateOf(true) }
@@ -34,14 +36,18 @@ fun FirmaEnvioScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        BarraNavegacionEsquinas(
+            puedeVolver = puedeVolver,
+            puedeAvanzar = puedeAvanzar,
+            onVolver = onVolver,
+            onAvanzar = onAvanzar
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-            }
             Text("Firma y envío", fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Surface(color = Color(0xFFE0E7FF), shape = RoundedCornerShape(4.dp)) {
                 Text("DEMO", modifier = Modifier.padding(6.dp, 2.dp), fontSize = 11.sp, color = Color(0xFF1E3A8A))

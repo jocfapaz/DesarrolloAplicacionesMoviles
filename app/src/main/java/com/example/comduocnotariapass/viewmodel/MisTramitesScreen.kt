@@ -1,5 +1,6 @@
 package com.example.comduocnotariapass.viewmodel
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,7 +23,12 @@ data class TramiteItem(
 
 @Composable
 fun MisTramitesScreen(
-    onNuevoTramiteClick: () -> Unit
+    onNuevoTramiteClick: () -> Unit,
+    onTramiteClick: () -> Unit,
+    puedeVolver: Boolean,
+    puedeAvanzar: Boolean,
+    onVolver: () -> Unit,
+    onAvanzar: () -> Unit
 ) {
     val tramites = listOf(
         TramiteItem("1", "Declaración jurada simple", "NX-DEMO-024", "12 oct. 2026", "Borrador", Color.Gray),
@@ -45,6 +51,13 @@ fun MisTramitesScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            BarraNavegacionEsquinas(
+                puedeVolver = puedeVolver,
+                puedeAvanzar = puedeAvanzar,
+                onVolver = onVolver,
+                onAvanzar = onAvanzar
+            )
+
             Text("NotariaX", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -69,7 +82,9 @@ fun MisTramitesScreen(
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(tramites) { tramite ->
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onTramiteClick() },
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {

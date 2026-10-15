@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -17,7 +16,11 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun TramiteEnviadoScreen(
-    onVolverInicio: () -> Unit
+    onVolverInicio: () -> Unit,
+    puedeVolver: Boolean,
+    puedeAvanzar: Boolean,
+    onVolver: () -> Unit,
+    onAvanzar: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -26,14 +29,18 @@ fun TramiteEnviadoScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        BarraNavegacionEsquinas(
+            puedeVolver = puedeVolver,
+            puedeAvanzar = puedeAvanzar,
+            onVolver = onVolver,
+            onAvanzar = onAvanzar
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onVolverInicio) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-            }
             Text("Trámite a enviar", fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Surface(color = Color(0xFFE0E7FF), shape = RoundedCornerShape(4.dp)) {
                 Text("DEMO", modifier = Modifier.padding(6.dp, 2.dp), fontSize = 11.sp, color = Color(0xFF1E3A8A))

@@ -17,7 +17,10 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun NuevoTramiteScreen(
     onContinuarRevisionClick: () -> Unit,
-    onBackClick: () -> Unit
+    puedeVolver: Boolean,
+    puedeAvanzar: Boolean,
+    onVolver: () -> Unit,
+    onAvanzar: () -> Unit
 ) {
     var tipoTramite by remember { mutableStateOf("Declaración jurada simple") }
 
@@ -27,14 +30,14 @@ fun NuevoTramiteScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            TextButton(onClick = onBackClick) { Text("< Volver") }
-            Spacer(modifier = Modifier.weight(1f))
-            Text("Nuevo trámite", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        }
+        BarraNavegacionEsquinas(
+            puedeVolver = puedeVolver,
+            puedeAvanzar = puedeAvanzar,
+            onVolver = onVolver,
+            onAvanzar = onAvanzar
+        )
+
+        Text("Nuevo trámite", fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
         Spacer(modifier = Modifier.height(8.dp))
 

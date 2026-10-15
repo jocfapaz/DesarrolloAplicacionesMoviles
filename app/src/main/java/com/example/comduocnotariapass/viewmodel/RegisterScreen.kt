@@ -15,7 +15,11 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: (String, String, String) -> Unit,
-    onBackToLogin: () -> Unit
+    onBackToLogin: () -> Unit,
+    puedeVolver: Boolean,
+    puedeAvanzar: Boolean,
+    onVolver: () -> Unit,
+    onAvanzar: () -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -29,6 +33,13 @@ fun RegisterScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        BarraNavegacionEsquinas(
+            puedeVolver = puedeVolver,
+            puedeAvanzar = puedeAvanzar,
+            onVolver = onVolver,
+            onAvanzar = onAvanzar
+        )
+
         Text("NotariaX", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
         Spacer(modifier = Modifier.height(24.dp))

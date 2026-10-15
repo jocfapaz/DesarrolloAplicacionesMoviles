@@ -7,16 +7,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.example.comduocnotariapass.model.Pantalla
-import com.example.comduocnotariapass.model.TramiteModel
+import com.example.comduocnotariapass.viewmodel.DetalleTramiteScreen
+import com.example.comduocnotariapass.viewmodel.FirmaEnvioScreen
 import com.example.comduocnotariapass.viewmodel.LoginScreen
 import com.example.comduocnotariapass.viewmodel.MisTramitesScreen
 import com.example.comduocnotariapass.viewmodel.NuevoTramiteScreen
+import com.example.comduocnotariapass.viewmodel.RevisarAntecedentesScreen
 import com.example.comduocnotariapass.viewmodel.RegisterScreen
+import com.example.comduocnotariapass.viewmodel.TramiteEnviadoScreen
 import com.example.comduocnotariapass.ui.theme.ComduocNotariaPassTheme
 import com.example.comduocnotariapass.viewmodel.MainViewModel
 
@@ -57,7 +56,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onBackToLogin = {
                                     mainViewModel.onVolverALoginClick()
-                                }
+                                },
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
                             )
                         }
 
@@ -65,7 +68,14 @@ class MainActivity : ComponentActivity() {
                             MisTramitesScreen(
                                 onNuevoTramiteClick = {
                                     mainViewModel.onNuevoTramiteClick()
-                                }
+                                },
+                                onTramiteClick = {
+                                    mainViewModel.onTramiteClick()
+                                },
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
                             )
                         }
 
@@ -74,9 +84,58 @@ class MainActivity : ComponentActivity() {
                                 onContinuarRevisionClick = {
                                     mainViewModel.onContinuarRevisionClick()
                                 },
-                                onBackClick = {
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
+                            )
+                        }
+
+                        Pantalla.REVISAR_ANTECEDENTES -> {
+                            RevisarAntecedentesScreen(
+                                onContinuarFirma = {
+                                    mainViewModel.onContinuarFirmaClick()
+                                },
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
+                            )
+                        }
+
+                        Pantalla.FIRMA_ENVIO -> {
+                            FirmaEnvioScreen(
+                                onEnviarNotario = {
+                                    mainViewModel.onEnviarNotarioClick()
+                                },
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
+                            )
+                        }
+
+                        Pantalla.TRAMITE_ENVIADO -> {
+                            TramiteEnviadoScreen(
+                                onVolverInicio = {
                                     mainViewModel.onVolverAMisTramitesClick()
-                                }
+                                },
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
+                            )
+                        }
+
+                        Pantalla.DETALLE_TRAMITE -> {
+                            DetalleTramiteScreen(
+                                onReenviarRevision = {
+                                    mainViewModel.onReenviarRevisionClick()
+                                },
+                                puedeVolver = mainViewModel.puedeVolver,
+                                puedeAvanzar = mainViewModel.puedeAvanzar,
+                                onVolver = { mainViewModel.volver() },
+                                onAvanzar = { mainViewModel.avanzar() }
                             )
                         }
                     }
