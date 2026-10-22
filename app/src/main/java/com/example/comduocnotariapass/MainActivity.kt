@@ -165,6 +165,12 @@ class MainActivity : ComponentActivity() {
 
                         Pantalla.DETALLE_TRAMITE -> {
                             DetalleTramiteScreen(
+                                formatoSeleccionado = mainViewModel.formatoSeleccionado,
+                                documentosPropios = mainViewModel.documentosPropios,
+                                estadoTramite = mainViewModel.estadoTramite,
+                                onAgregarDocumento = { documento ->
+                                    mainViewModel.agregarDocumentoPropio(documento)
+                                },
                                 onReenviarRevision = {
                                     mainViewModel.onReenviarRevisionClick()
                                 },

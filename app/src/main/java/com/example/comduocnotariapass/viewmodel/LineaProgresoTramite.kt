@@ -36,8 +36,6 @@ fun EncabezadoEstadoTramite(
     tipoFirma: TipoFirma,
     modifier: Modifier = Modifier
 ) {
-    val colorEstado = colorDelEstado(estado)
-
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -45,15 +43,7 @@ fun EncabezadoEstadoTramite(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("ID de seguimiento", fontSize = 11.sp, color = Color.Gray)
-            Surface(color = colorEstado.copy(alpha = 0.15f), shape = RoundedCornerShape(4.dp)) {
-                Text(
-                    estado.etiquetaEstado,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorEstado
-                )
-            }
+            ChipEstadoTramite(estado = estado)
         }
 
         Text(
@@ -78,6 +68,20 @@ fun EncabezadoEstadoTramite(
             Spacer(modifier = Modifier.width(6.dp))
             Text("Modalidad de firma", fontSize = 10.sp, color = Color.Gray)
         }
+    }
+}
+
+@Composable
+fun ChipEstadoTramite(estado: EstadoTramite, modifier: Modifier = Modifier) {
+    val color = colorDelEstado(estado)
+    Surface(color = color.copy(alpha = 0.15f), shape = RoundedCornerShape(4.dp), modifier = modifier) {
+        Text(
+            estado.etiquetaEstado,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
     }
 }
 

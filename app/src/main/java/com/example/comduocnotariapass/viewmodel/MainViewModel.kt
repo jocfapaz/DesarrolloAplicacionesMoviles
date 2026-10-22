@@ -11,6 +11,7 @@ import com.example.comduocnotariapass.model.Documento
 import com.example.comduocnotariapass.model.EstadoTramite
 import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.Pantalla
+import com.example.comduocnotariapass.model.ResultadoRevision
 import com.example.comduocnotariapass.model.RolSolicitante
 import com.example.comduocnotariapass.model.TipoFirma
 
@@ -104,6 +105,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun onTramiteClick() {
+        // El trámite abierto desde "Mis trámites" está observado
+        estadoTramite = EstadoTramite(resultado = ResultadoRevision.OBSERVACIONES)
         navegarA(Pantalla.DETALLE_TRAMITE)
     }
 
