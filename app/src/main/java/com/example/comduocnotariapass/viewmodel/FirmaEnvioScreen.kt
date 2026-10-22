@@ -38,6 +38,7 @@ fun FirmaEnvioScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF7F9FC))
+            .statusBarsPadding()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {

@@ -68,6 +68,7 @@ fun NuevoTramiteScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {

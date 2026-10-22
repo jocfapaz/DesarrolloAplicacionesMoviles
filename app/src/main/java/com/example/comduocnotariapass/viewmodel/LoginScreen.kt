@@ -1,5 +1,6 @@
 package com.example.comduocnotariapass.viewmodel
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -7,10 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.comduocnotariapass.R
 
 @Composable
 fun LoginScreen(
@@ -26,11 +30,20 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(40.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("NotariaX", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Image(
+            painter = painterResource(id = R.drawable.logo_notaria_pass),
+            contentDescription = "Logo de NotariaPass",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .width(340.dp)
+                .aspectRatio(1980f / 521f)
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Card(
@@ -45,14 +58,14 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
         Text("Te damos la bienvenida", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text("Accede con tu cuenta de prueba o explora el recorrido en modo demo.", fontSize = 12.sp)
+        Text("Accede con tu cuenta o explora el recorrido sin iniciar sesion.", fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it },
-            label = { Text("Correo de prueba") },
+            label = { Text("Correo") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -61,7 +74,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = clave,
             onValueChange = { clave = it },
-            label = { Text("Contraseña de prueba") },
+            label = { Text("Contraseña") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -82,7 +95,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = !cargando
         ) {
-            Text(if (cargando) "Ingresando..." else "Ingresar con cuenta de prueba")
+            Text(if (cargando) "Ingresando..." else "Ingresar")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -92,7 +105,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = !cargando
         ) {
-            Text("Entrar al modo demo")
+            Text("Entrar sin cuenta")
         }
 
         Spacer(modifier = Modifier.height(16.dp))

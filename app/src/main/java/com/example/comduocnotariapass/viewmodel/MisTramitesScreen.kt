@@ -1,5 +1,6 @@
 package com.example.comduocnotariapass.viewmodel
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,9 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.comduocnotariapass.R
 import com.example.comduocnotariapass.model.EstadoPersistido
 import com.example.comduocnotariapass.model.TramiteResumen
 import java.text.SimpleDateFormat
@@ -57,7 +61,14 @@ fun MisTramitesScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("NotariaX", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Image(
+                    painter = painterResource(id = R.drawable.logo_notaria_pass),
+                    contentDescription = "Logo de NotariaPass",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .width(240.dp)
+                        .aspectRatio(1980f / 521f)
+                )
                 TextButton(onClick = onCerrarSesion) {
                     Text("Cerrar sesión", fontSize = 11.sp)
                 }

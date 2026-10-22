@@ -47,6 +47,7 @@ fun RevisarAntecedentesScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF7F9FC))
+            .statusBarsPadding()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -96,12 +97,12 @@ fun RevisarAntecedentesScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Formato demo · Creado el 12 oct. 2026", fontSize = 12.sp, color = Color.Gray)
+                Text("Formato · Creado el 12 oct. 2026", fontSize = 12.sp, color = Color.Gray)
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
 
                 Text("Correo: persona@demo.invalid", fontSize = 12.sp)
-                Text("Región: Región Demo · Dato ficticio", fontSize = 12.sp)
+                Text("Región: Región · Dato ficticio", fontSize = 12.sp)
                 Text("Comuna: Sin completar", fontSize = 12.sp, color = Color.Red)
             }
         }

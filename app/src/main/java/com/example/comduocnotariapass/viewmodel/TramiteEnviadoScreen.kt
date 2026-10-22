@@ -9,6 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,10 +39,13 @@ fun TramiteEnviadoScreen(
     onVolver: () -> Unit,
     onAvanzar: () -> Unit
 ) {
+    var mostrarModal by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF7F9FC))
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -117,7 +124,7 @@ fun TramiteEnviadoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Nombre · Dato ficticio", fontSize = 11.sp, color = Color.Gray)
+                Text("Nombre · Dato ", fontSize = 11.sp, color = Color.Gray)
                 Text(datosSolicitante.nombre, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                 Text("ID: ${datosSolicitante.id}", fontSize = 12.sp, color = Color.Gray)
 
@@ -137,19 +144,15 @@ fun TramiteEnviadoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Surface(
-            color = Color(0xFFDBEAFE),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.fillMaxWidth()
+        Button(
+            onClick = { mostrarModal = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+            shape = RoundedCornerShape(8.dp)
         ) {
-            Text(
-                text = "Solicitud enviada correctamente!",
-                modifier = Modifier.padding(14.dp),
-                color = Color(0xFF1E3A8A),
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
+            Text("Enviar", color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -164,5 +167,23 @@ fun TramiteEnviadoScreen(
         ) {
             Text("Volver a mis trámites", color = Color.White)
         }
+    }
+
+    if (mostrarModal) {
+        AlertDialog(
+            onDismissRequest = { mostrarModal = false },
+            title = { Text("Solicitud enviada") },
+            text = { Text("Solicitud enviada correctamente") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        mostrarModal = false
+                        onVolverInicio()
+                    }
+                ) {
+                    Text("Aceptar")
+                }
+            }
+        )
     }
 }

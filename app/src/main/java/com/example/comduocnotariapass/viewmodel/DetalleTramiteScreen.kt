@@ -71,6 +71,7 @@ fun DetalleTramiteScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF7F9FC))
+            .statusBarsPadding()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -123,7 +124,7 @@ fun DetalleTramiteScreen(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Comentarios del notario de prueba (${observacion.comentarios.size})",
+                        "Comentarios del notario (${observacion.comentarios.size})",
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
                         color = Color(0xFF92400E)
@@ -203,7 +204,7 @@ fun DetalleTramiteScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Edición de Comuna
-        Text("Comuna · Dato ficticio", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        Text("Comuna · Dato ", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         OutlinedTextField(
             value = comuna,
             onValueChange = { comuna = it },
