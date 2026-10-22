@@ -46,6 +46,57 @@ data class DatosSolicitante(
 fun puedeContinuarVerificacion(datos: DatosSolicitante, antecedentesRevisados: Boolean): Boolean =
     datos.datosCompletos && antecedentesRevisados
 
+// Mecanismos que se simulan académicamente en el paso de firma
+enum class MecanismoSimulado(
+    val etiqueta: String,
+    val titulo: String,
+    val descripcion: String
+) {
+    E_TOKEN(
+        etiqueta = "e-token",
+        titulo = "e-token",
+        descripcion = "Código de un solo uso (OTP) que se enviaría al correo o teléfono. " +
+            "Acá no se envía ningún código ni mensaje real."
+    ),
+    CERTIFICADO(
+        etiqueta = "certificado",
+        titulo = "Certificado digital",
+        descripcion = "Certificado ficticio de una entidad simulada. No tiene validez legal " +
+            "ni cadena de confianza real."
+    ),
+    BIOMETRIA(
+        etiqueta = "biometría",
+        titulo = "Biometría",
+        descripcion = "Huella o reconocimiento facial simulado. No se captura ni almacena " +
+            "ningún dato biométrico real."
+    )
+}
+
+// Tipos de firma disponibles en "Selección de Tipo de Firma"
+enum class TipoFirma(
+    val nombre: String,
+    val subtitulo: String,
+    val mecanismos: List<MecanismoSimulado>
+) {
+    SIMPLE(
+        nombre = "Firma electrónica simple",
+        subtitulo = "Trazo digital de prueba, sin firma real.",
+        mecanismos = listOf(MecanismoSimulado.E_TOKEN)
+    ),
+    AVANZADA(
+        nombre = "Firma electrónica avanzada",
+        subtitulo = "Certificado y proveedor simulados; sin integración real.",
+        mecanismos = listOf(MecanismoSimulado.CERTIFICADO)
+    ),
+    NOTARIADA(
+        nombre = "Firma notariada",
+        subtitulo = "Firma demo y revisión por notario de prueba.",
+        mecanismos = listOf(MecanismoSimulado.CERTIFICADO, MecanismoSimulado.BIOMETRIA)
+    );
+
+    fun simula(mecanismo: MecanismoSimulado): Boolean = mecanismo in mecanismos
+}
+
 // Catálogo de formatos disponibles en "Selección de Trámite y Archivos"
 object CatalogoTramites {
 

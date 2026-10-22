@@ -11,6 +11,7 @@ import com.example.comduocnotariapass.model.Documento
 import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.Pantalla
 import com.example.comduocnotariapass.model.RolSolicitante
+import com.example.comduocnotariapass.model.TipoFirma
 
 class MainViewModel : ViewModel() {
 
@@ -34,6 +35,10 @@ class MainViewModel : ViewModel() {
 
     // Confirmación de que el solicitante revisó los antecedentes
     var antecedentesRevisados by mutableStateOf(false)
+        private set
+
+    // Tipo de firma elegido en el paso 3
+    var tipoFirmaSeleccionado by mutableStateOf(TipoFirma.NOTARIADA)
         private set
 
     // Estado que indica qué pantalla se muestra actualmente
@@ -125,6 +130,7 @@ class MainViewModel : ViewModel() {
         documentosPropios = emptyList()
         datosSolicitante = DatosSolicitante()
         antecedentesRevisados = false
+        tipoFirmaSeleccionado = TipoFirma.NOTARIADA
     }
 
     fun onContinuarRevisionClick() {
@@ -141,6 +147,10 @@ class MainViewModel : ViewModel() {
     }
 
     // FirmaEnvioScreen Clicks
+    fun seleccionarTipoFirma(tipo: TipoFirma) {
+        tipoFirmaSeleccionado = tipo
+    }
+
     fun onEnviarNotarioClick() {
         navegarA(Pantalla.TRAMITE_ENVIADO)
     }

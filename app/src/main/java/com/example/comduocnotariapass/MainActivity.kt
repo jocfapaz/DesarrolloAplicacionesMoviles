@@ -128,6 +128,10 @@ class MainActivity : ComponentActivity() {
 
                         Pantalla.FIRMA_ENVIO -> {
                             FirmaEnvioScreen(
+                                tipoFirmaSeleccionado = mainViewModel.tipoFirmaSeleccionado,
+                                onSeleccionarTipoFirma = { tipo ->
+                                    mainViewModel.seleccionarTipoFirma(tipo)
+                                },
                                 onEnviarNotario = {
                                     mainViewModel.onEnviarNotarioClick()
                                 },
@@ -144,6 +148,7 @@ class MainActivity : ComponentActivity() {
                                 documentos = mainViewModel.formatoSeleccionado.documentosInclusos +
                                     mainViewModel.documentosPropios,
                                 datosSolicitante = mainViewModel.datosSolicitante,
+                                tipoFirma = mainViewModel.tipoFirmaSeleccionado,
                                 onVolverInicio = {
                                     mainViewModel.onVolverAMisTramitesClick()
                                 },

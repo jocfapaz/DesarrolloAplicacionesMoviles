@@ -16,12 +16,14 @@ import androidx.compose.ui.unit.sp
 import com.example.comduocnotariapass.model.DatosSolicitante
 import com.example.comduocnotariapass.model.Documento
 import com.example.comduocnotariapass.model.FormatoTramite
+import com.example.comduocnotariapass.model.TipoFirma
 
 @Composable
 fun TramiteEnviadoScreen(
     formatoSeleccionado: FormatoTramite,
     documentos: List<Documento>,
     datosSolicitante: DatosSolicitante,
+    tipoFirma: TipoFirma,
     onVolverInicio: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
@@ -74,7 +76,17 @@ fun TramiteEnviadoScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("En corrección · Firma notariada simulada", fontSize = 12.sp, color = Color.Gray)
+                Text(
+                    "En corrección · ${tipoFirma.nombre} · Simulada",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    "Simula: ${tipoFirma.mecanismos.joinToString(" · ") { it.etiqueta }}",
+                    fontSize = 11.sp,
+                    color = Color(0xFF2563EB),
+                    fontWeight = FontWeight.SemiBold
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
