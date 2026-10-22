@@ -5,6 +5,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.comduocnotariapass.model.CatalogoTramites
+import com.example.comduocnotariapass.model.Documento
+import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.Pantalla
 
 class MainViewModel : ViewModel() {
@@ -12,6 +15,16 @@ class MainViewModel : ViewModel() {
     // Historial de pantallas visitadas (tipo navegador)
     private val historial = mutableStateListOf(Pantalla.LOGIN)
     private var indice by mutableStateOf(0)
+
+    // BORRADOR DEL TRÁMITE (se conserva al navegar entre el paso 1, 2 y 3)
+
+    // Formato predefinido elegido en "Selección de Trámite y Archivos"
+    var formatoSeleccionado by mutableStateOf(CatalogoTramites.formatoPorDefecto)
+        private set
+
+    // Documentos propios adjuntados por el solicitante
+    var documentosPropios by mutableStateOf<List<Documento>>(emptyList())
+        private set
 
     // Estado que indica qué pantalla se muestra actualmente
     val pantallaActual: Pantalla get() = historial[indice]
@@ -66,6 +79,7 @@ class MainViewModel : ViewModel() {
 
     // MisTramitesScreen Clicks
     fun onNuevoTramiteClick() {
+        limpiarBorrador()
         navegarA(Pantalla.NUEVO_TRAMITE)
     }
 
@@ -74,6 +88,24 @@ class MainViewModel : ViewModel() {
     }
 
     // NuevoTramiteScreen Clicks
+
+    fun seleccionarFormato(formato: FormatoTramite) {
+        formatoSeleccionado = formato
+    }
+
+    fun agregarDocumentoPropio(documento: Documento) {
+        documentosPropios = documentosPropios + documento
+    }
+
+    fun quitarDocumentoPropio(id: String) {
+        documentosPropios = documentosPropios.filterNot { it.id == id }
+    }
+
+    fun limpiarBorrador() {
+        formatoSeleccionado = CatalogoTramites.formatoPorDefecto
+        documentosPropios = emptyList()
+    }
+
     fun onContinuarRevisionClick() {
         navegarA(Pantalla.REVISAR_ANTECEDENTES)
     }

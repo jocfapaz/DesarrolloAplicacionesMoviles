@@ -15,9 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.comduocnotariapass.model.Documento
+import com.example.comduocnotariapass.model.FormatoTramite
+import com.example.comduocnotariapass.util.detalleDocumento
 
 @Composable
 fun RevisarAntecedentesScreen(
+    formatoSeleccionado: FormatoTramite,
+    documentosPropios: List<Documento>,
     onContinuarFirma: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
@@ -25,6 +30,8 @@ fun RevisarAntecedentesScreen(
     onAvanzar: () -> Unit
 ) {
     var isChecked by remember { mutableStateOf(true) }
+
+    val documentos = formatoSeleccionado.documentosInclusos + documentosPropios
 
     Column(
         modifier = Modifier
@@ -69,7 +76,7 @@ fun RevisarAntecedentesScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("NX-DEMO-024 · Persona natural", fontSize = 11.sp, color = Color(0xFF2563EB), fontWeight = FontWeight.Bold)
-                Text("Declaración jurada simple", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("Formato demo · Creado el 12 oct. 2026", fontSize = 12.sp, color = Color.Gray)
 
                 Divider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
@@ -93,14 +100,18 @@ fun RevisarAntecedentesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Documentos (2)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text("Documentos (${documentos.size})", fontSize = 14.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Lista de documentos
-        DocumentoItemView("declaracion_demo.pdf", "PDF · 240 KB · Ficticio")
-        Spacer(modifier = Modifier.height(6.dp))
-        DocumentoItemView("anexo_demo.pdf", "PDF · 180 KB · Ficticio")
+        documentos.forEach { documento ->
+            DocumentoItemView(
+                nombre = documento.nombre,
+                subtext = "${detalleDocumento(documento)} · ${if (documento.esPropio) "Propio" else "Del formato"}"
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

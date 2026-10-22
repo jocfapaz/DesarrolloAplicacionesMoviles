@@ -13,9 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.comduocnotariapass.model.Documento
+import com.example.comduocnotariapass.model.FormatoTramite
 
 @Composable
 fun TramiteEnviadoScreen(
+    formatoSeleccionado: FormatoTramite,
+    documentos: List<Documento>,
     onVolverInicio: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
@@ -62,7 +66,7 @@ fun TramiteEnviadoScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("NX-DEMO-024 · Persona natural", fontSize = 11.sp, color = Color(0xFF2563EB), fontWeight = FontWeight.Bold)
-                Text("Declaración jurada simple", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("En corrección · Firma notariada simulada", fontSize = 12.sp, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -72,12 +76,14 @@ fun TramiteEnviadoScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text("Documentos Adjuntados (2)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("Documentos Adjuntados (${documentos.size})", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("anexo_demo_v2.pdf", fontSize = 12.sp)
+                documentos.forEach { documento ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(documento.nombre, fontSize = 12.sp)
+                    }
                 }
             }
         }

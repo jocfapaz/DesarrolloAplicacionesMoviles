@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import com.example.comduocnotariapass.model.CatalogoTramites
 import com.example.comduocnotariapass.model.Pantalla
 import com.example.comduocnotariapass.viewmodel.DetalleTramiteScreen
 import com.example.comduocnotariapass.viewmodel.FirmaEnvioScreen
@@ -81,6 +82,18 @@ class MainActivity : ComponentActivity() {
 
                         Pantalla.NUEVO_TRAMITE -> {
                             NuevoTramiteScreen(
+                                formatos = CatalogoTramites.formatos,
+                                formatoSeleccionado = mainViewModel.formatoSeleccionado,
+                                documentosPropios = mainViewModel.documentosPropios,
+                                onSeleccionarFormato = { formato ->
+                                    mainViewModel.seleccionarFormato(formato)
+                                },
+                                onAgregarDocumento = { documento ->
+                                    mainViewModel.agregarDocumentoPropio(documento)
+                                },
+                                onQuitarDocumento = { id ->
+                                    mainViewModel.quitarDocumentoPropio(id)
+                                },
                                 onContinuarRevisionClick = {
                                     mainViewModel.onContinuarRevisionClick()
                                 },
@@ -93,6 +106,8 @@ class MainActivity : ComponentActivity() {
 
                         Pantalla.REVISAR_ANTECEDENTES -> {
                             RevisarAntecedentesScreen(
+                                formatoSeleccionado = mainViewModel.formatoSeleccionado,
+                                documentosPropios = mainViewModel.documentosPropios,
                                 onContinuarFirma = {
                                     mainViewModel.onContinuarFirmaClick()
                                 },
@@ -117,6 +132,9 @@ class MainActivity : ComponentActivity() {
 
                         Pantalla.TRAMITE_ENVIADO -> {
                             TramiteEnviadoScreen(
+                                formatoSeleccionado = mainViewModel.formatoSeleccionado,
+                                documentos = mainViewModel.formatoSeleccionado.documentosInclusos +
+                                    mainViewModel.documentosPropios,
                                 onVolverInicio = {
                                     mainViewModel.onVolverAMisTramitesClick()
                                 },
