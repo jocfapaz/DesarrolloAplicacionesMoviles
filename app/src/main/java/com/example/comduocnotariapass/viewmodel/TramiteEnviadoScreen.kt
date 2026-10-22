@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.comduocnotariapass.model.DatosSolicitante
 import com.example.comduocnotariapass.model.Documento
 import com.example.comduocnotariapass.model.FormatoTramite
 
@@ -20,6 +21,7 @@ import com.example.comduocnotariapass.model.FormatoTramite
 fun TramiteEnviadoScreen(
     formatoSeleccionado: FormatoTramite,
     documentos: List<Documento>,
+    datosSolicitante: DatosSolicitante,
     onVolverInicio: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
@@ -65,14 +67,20 @@ fun TramiteEnviadoScreen(
             elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("NX-DEMO-024 · Persona natural", fontSize = 11.sp, color = Color(0xFF2563EB), fontWeight = FontWeight.Bold)
+                Text(
+                    "NX-DEMO-024 · ${datosSolicitante.rol.nombre}",
+                    fontSize = 11.sp,
+                    color = Color(0xFF2563EB),
+                    fontWeight = FontWeight.Bold
+                )
                 Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("En corrección · Firma notariada simulada", fontSize = 12.sp, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text("Nombre · Dato ficticio", fontSize = 11.sp, color = Color.Gray)
-                Text("Nombre del Solicitante", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text(datosSolicitante.nombre, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text("ID: ${datosSolicitante.id}", fontSize = 12.sp, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(12.dp))
 

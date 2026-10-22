@@ -6,9 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.comduocnotariapass.model.CatalogoTramites
+import com.example.comduocnotariapass.model.DatosSolicitante
 import com.example.comduocnotariapass.model.Documento
 import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.Pantalla
+import com.example.comduocnotariapass.model.RolSolicitante
 
 class MainViewModel : ViewModel() {
 
@@ -24,6 +26,14 @@ class MainViewModel : ViewModel() {
 
     // Documentos propios adjuntados por el solicitante
     var documentosPropios by mutableStateOf<List<Documento>>(emptyList())
+        private set
+
+    // Datos verificados en el paso 2 (nombre, ID y rol del solicitante)
+    var datosSolicitante by mutableStateOf(DatosSolicitante())
+        private set
+
+    // Confirmación de que el solicitante revisó los antecedentes
+    var antecedentesRevisados by mutableStateOf(false)
         private set
 
     // Estado que indica qué pantalla se muestra actualmente
@@ -101,9 +111,20 @@ class MainViewModel : ViewModel() {
         documentosPropios = documentosPropios.filterNot { it.id == id }
     }
 
+    // RevisarAntecedentesScreen Clicks
+    fun actualizarDatosSolicitante(nombre: String, id: String, rol: RolSolicitante) {
+        datosSolicitante = datosSolicitante.copy(nombre = nombre, id = id, rol = rol)
+    }
+
+    fun marcarAntecedentesRevisados(valor: Boolean) {
+        antecedentesRevisados = valor
+    }
+
     fun limpiarBorrador() {
         formatoSeleccionado = CatalogoTramites.formatoPorDefecto
         documentosPropios = emptyList()
+        datosSolicitante = DatosSolicitante()
+        antecedentesRevisados = false
     }
 
     fun onContinuarRevisionClick() {

@@ -21,6 +21,31 @@ data class FormatoTramite(
     val documentosInclusos: List<Documento>
 )
 
+// Calidad o rol del solicitante dentro del trámite
+enum class RolSolicitante(val nombre: String) {
+    PERSONA_NATURAL("Persona natural"),
+    APODERADO("Apoderado"),
+    MANDATARIO("Mandatario"),
+    REPRESENTANTE_LEGAL("Representante legal"),
+    PERSONA_JURIDICA("Persona jurídica")
+}
+
+// Datos que el solicitante verifica antes de continuar con el trámite
+data class DatosSolicitante(
+    val nombre: String = "Persona Demo",
+    val id: String = "ID-DEMO-001",
+    val rol: RolSolicitante = RolSolicitante.PERSONA_NATURAL
+) {
+    val nombreCompleto: Boolean get() = nombre.isNotBlank()
+    val idCompleto: Boolean get() = id.isNotBlank()
+    val datosCompletos: Boolean get() = nombreCompleto && idCompleto
+}
+
+// El botón "Continuar" se habilita solo con los campos obligatorios completos
+// y con la confirmación de que los antecedentes fueron revisados
+fun puedeContinuarVerificacion(datos: DatosSolicitante, antecedentesRevisados: Boolean): Boolean =
+    datos.datosCompletos && antecedentesRevisados
+
 // Catálogo de formatos disponibles en "Selección de Trámite y Archivos"
 object CatalogoTramites {
 

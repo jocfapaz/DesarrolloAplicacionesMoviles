@@ -108,6 +108,14 @@ class MainActivity : ComponentActivity() {
                             RevisarAntecedentesScreen(
                                 formatoSeleccionado = mainViewModel.formatoSeleccionado,
                                 documentosPropios = mainViewModel.documentosPropios,
+                                datosSolicitante = mainViewModel.datosSolicitante,
+                                antecedentesRevisados = mainViewModel.antecedentesRevisados,
+                                onActualizarDatos = { nombre, id, rol ->
+                                    mainViewModel.actualizarDatosSolicitante(nombre, id, rol)
+                                },
+                                onAntecedentesRevisadosChange = { revisados ->
+                                    mainViewModel.marcarAntecedentesRevisados(revisados)
+                                },
                                 onContinuarFirma = {
                                     mainViewModel.onContinuarFirmaClick()
                                 },
@@ -135,6 +143,7 @@ class MainActivity : ComponentActivity() {
                                 formatoSeleccionado = mainViewModel.formatoSeleccionado,
                                 documentos = mainViewModel.formatoSeleccionado.documentosInclusos +
                                     mainViewModel.documentosPropios,
+                                datosSolicitante = mainViewModel.datosSolicitante,
                                 onVolverInicio = {
                                     mainViewModel.onVolverAMisTramitesClick()
                                 },
