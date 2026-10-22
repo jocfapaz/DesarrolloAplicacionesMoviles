@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.comduocnotariapass.model.CatalogoTramites
 import com.example.comduocnotariapass.model.DatosSolicitante
 import com.example.comduocnotariapass.model.Documento
+import com.example.comduocnotariapass.model.EstadoTramite
 import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.Pantalla
 import com.example.comduocnotariapass.model.RolSolicitante
@@ -39,6 +40,10 @@ class MainViewModel : ViewModel() {
 
     // Tipo de firma elegido en el paso 3
     var tipoFirmaSeleccionado by mutableStateOf(TipoFirma.NOTARIADA)
+        private set
+
+    // Estado del trámite mostrado tras el envío (paso 3 de 3)
+    var estadoTramite by mutableStateOf(EstadoTramite())
         private set
 
     // Estado que indica qué pantalla se muestra actualmente
@@ -131,6 +136,7 @@ class MainViewModel : ViewModel() {
         datosSolicitante = DatosSolicitante()
         antecedentesRevisados = false
         tipoFirmaSeleccionado = TipoFirma.NOTARIADA
+        estadoTramite = EstadoTramite()
     }
 
     fun onContinuarRevisionClick() {
@@ -152,11 +158,18 @@ class MainViewModel : ViewModel() {
     }
 
     fun onEnviarNotarioClick() {
+        estadoTramite = EstadoTramite()
         navegarA(Pantalla.TRAMITE_ENVIADO)
+    }
+
+    // TramiteEnviadoScreen Clicks
+    fun simularResolucion() {
+        estadoTramite = estadoTramite.copy(resultado = estadoTramite.siguienteResultado())
     }
 
     // DetalleTramiteScreen Clicks
     fun onReenviarRevisionClick() {
+        estadoTramite = EstadoTramite()
         navegarA(Pantalla.REVISAR_ANTECEDENTES)
     }
 }

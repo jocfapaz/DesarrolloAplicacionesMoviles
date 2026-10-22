@@ -149,6 +149,10 @@ class MainActivity : ComponentActivity() {
                                     mainViewModel.documentosPropios,
                                 datosSolicitante = mainViewModel.datosSolicitante,
                                 tipoFirma = mainViewModel.tipoFirmaSeleccionado,
+                                estadoTramite = mainViewModel.estadoTramite,
+                                onSimularResolucion = {
+                                    mainViewModel.simularResolucion()
+                                },
                                 onVolverInicio = {
                                     mainViewModel.onVolverAMisTramitesClick()
                                 },

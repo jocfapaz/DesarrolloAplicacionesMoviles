@@ -2,7 +2,9 @@ package com.example.comduocnotariapass.viewmodel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
@@ -15,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.comduocnotariapass.model.DatosSolicitante
 import com.example.comduocnotariapass.model.Documento
+import com.example.comduocnotariapass.model.EstadoTramite
 import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.TipoFirma
 
@@ -24,6 +27,8 @@ fun TramiteEnviadoScreen(
     documentos: List<Documento>,
     datosSolicitante: DatosSolicitante,
     tipoFirma: TipoFirma,
+    estadoTramite: EstadoTramite,
+    onSimularResolucion: () -> Unit,
     onVolverInicio: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
@@ -34,8 +39,8 @@ fun TramiteEnviadoScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF7F9FC))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
     ) {
         BarraNavegacionEsquinas(
             puedeVolver = puedeVolver,
@@ -49,18 +54,40 @@ fun TramiteEnviadoScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Trámite a enviar", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text("Estado del trámite", fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Surface(color = Color(0xFFE0E7FF), shape = RoundedCornerShape(4.dp)) {
                 Text("DEMO", modifier = Modifier.padding(6.dp, 2.dp), fontSize = 11.sp, color = Color(0xFF1E3A8A))
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Enviado", fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
-        Text("Su solicitud de trámite ha sido enviada a NotariaX.", fontSize = 13.sp, color = Color.Gray, modifier = Modifier.fillMaxWidth())
+        // Encabezado: ID de seguimiento y modalidad de firma
+        EncabezadoEstadoTramite(
+            estado = estadoTramite,
+            tipoFirma = tipoFirma
+        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Línea de progreso interactiva
+        LineaProgresoTramite(estado = estadoTramite)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedButton(
+            onClick = onSimularResolucion,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(estadoTramite.textoBotonDemo(), fontSize = 12.sp, color = Color(0xFF2563EB))
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text("Resumen del envío", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Card con resumen del envío
         Card(
@@ -77,7 +104,7 @@ fun TramiteEnviadoScreen(
                 )
                 Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(
-                    "En corrección · ${tipoFirma.nombre} · Simulada",
+                    "${estadoTramite.etiquetaEstado} · ${tipoFirma.nombre} · Simulada",
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
@@ -108,7 +135,7 @@ fun TramiteEnviadoScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Surface(
             color = Color(0xFFDBEAFE),
