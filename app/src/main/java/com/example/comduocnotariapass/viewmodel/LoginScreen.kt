@@ -16,7 +16,9 @@ import androidx.compose.ui.unit.sp
 fun LoginScreen(
     onLoginClick: (String, String) -> Unit,
     onDemoClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    error: String? = null,
+    cargando: Boolean = false
 ) {
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
@@ -24,7 +26,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(40.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -64,20 +66,31 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        if (error != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = { onLoginClick(correo, clave) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !cargando
         ) {
-            Text("Ingresar con cuenta de prueba")
+            Text(if (cargando) "Ingresando..." else "Ingresar con cuenta de prueba")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedButton(
             onClick = onDemoClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !cargando
         ) {
             Text("Entrar al modo demo")
         }

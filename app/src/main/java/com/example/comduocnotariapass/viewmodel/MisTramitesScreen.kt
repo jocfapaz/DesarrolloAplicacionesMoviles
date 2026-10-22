@@ -6,36 +6,30 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-data class TramiteItem(
-    val id: String,
-    val titulo: String,
-    val codigo: String,
-    val fecha: String,
-    val estado: String,
-    val estadoColor: Color
-)
+import com.example.comduocnotariapass.model.EstadoPersistido
+import com.example.comduocnotariapass.model.TramiteResumen
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MisTramitesScreen(
+    usuarioNombre: String,
+    tramites: List<TramiteResumen>,
     onNuevoTramiteClick: () -> Unit,
-    onTramiteClick: () -> Unit,
+    onTramiteClick: (Long) -> Unit,
+    onCerrarSesion: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
     onVolver: () -> Unit,
     onAvanzar: () -> Unit
 ) {
-    val tramites = listOf(
-        TramiteItem("1", "Declaración jurada simple", "NX-DEMO-024", "12 oct. 2026", "Borrador", Color.Gray),
-        TramiteItem("2", "Autorización de viaje demo", "NX-DEMO-023", "11 oct. 2026", "En revisión", Color(0xFFFFA000)),
-        TramiteItem("3", "Poder simple demo", "NX-DEMO-022", "10 oct. 2026", "Finalizado", Color(0xFF388E3C))
-    )
-
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -58,11 +52,23 @@ fun MisTramitesScreen(
                 onAvanzar = onAvanzar
             )
 
-            Text("NotariaX", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("NotariaX", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                TextButton(onClick = onCerrarSesion) {
+                    Text("Cerrar sesión", fontSize = 11.sp)
+                }
+            }
             Spacer(modifier = Modifier.height(12.dp))
 
             Text("Mis trámites", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text("Hola, Persona Demo. Aquí puedes ordenar y seguir cada solicitud.", fontSize = 12.sp)
+            Text(
+                "Hola, $usuarioNombre. Aquí puedes ordenar y seguir cada solicitud.",
+                fontSize = 12.sp
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -80,35 +86,50 @@ fun MisTramitesScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(tramites) { tramite ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onTramiteClick() },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Surface(
-                                    color = tramite.estadoColor.copy(alpha = 0.2f),
-                                    shape = MaterialTheme.shapes.small
+                if (tramites.isEmpty()) {
+                    item {
+                        Text(
+                            text = "Todavía no tienes trámites. Crea uno nuevo para comenzar.",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    items(tramites, key = { it.id }) { tramite ->
+                        val estadoColor = colorEstado(tramite.estado)
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onTramiteClick(tramite.id) },
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
+                                    Surface(
+                                        color = estadoColor.copy(alpha = 0.2f),
+                                        shape = MaterialTheme.shapes.small
+                                    ) {
+                                        Text(
+                                            text = tramite.estado.etiqueta,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                            fontSize = 10.sp,
+                                            color = estadoColor,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                     Text(
-                                        text = tramite.estado,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                        text = fechaLegible(tramite.fechaCreacion),
                                         fontSize = 10.sp,
-                                        color = tramite.estadoColor,
-                                        fontWeight = FontWeight.Bold
+                                        color = Color.Gray
                                     )
                                 }
-                                Text(tramite.fecha, fontSize = 10.sp, color = Color.Gray)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(tramite.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text(tramite.codigo, fontSize = 12.sp, color = Color.Gray)
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(tramite.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text(tramite.codigo, fontSize = 12.sp, color = Color.Gray)
                         }
                     }
                 }
@@ -116,3 +137,13 @@ fun MisTramitesScreen(
         }
     }
 }
+
+private fun colorEstado(estado: EstadoPersistido): Color = when (estado) {
+    EstadoPersistido.BORRADOR -> Color.Gray
+    EstadoPersistido.EN_REVISION -> Color(0xFFFFA000)
+    EstadoPersistido.OBSERVACIONES -> Color(0xFFE65100)
+    EstadoPersistido.FINALIZADO -> Color(0xFF388E3C)
+}
+
+private fun fechaLegible(millis: Long): String =
+    SimpleDateFormat("dd MMM yyyy", Locale.forLanguageTag("es-CL")).format(Date(millis))

@@ -97,7 +97,7 @@ fun TramiteEnviadoScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    "NX-DEMO-024 · ${datosSolicitante.rol.nombre}",
+                    "${estadoTramite.id} · ${datosSolicitante.rol.nombre}",
                     fontSize = 11.sp,
                     color = Color(0xFF2563EB),
                     fontWeight = FontWeight.Bold

@@ -19,12 +19,16 @@ fun RegisterScreen(
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
     onVolver: () -> Unit,
-    onAvanzar: () -> Unit
+    onAvanzar: () -> Unit,
+    error: String? = null,
+    cargando: Boolean = false
 ) {
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var errorLocal by remember { mutableStateOf("") }
+    val mensajeError = errorLocal.ifBlank { error.orEmpty() }
 
     Column(
         modifier = Modifier
@@ -84,13 +88,32 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        if (mensajeError.isNotBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = mensajeError,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp
+            )
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { onRegisterSuccess(nombre, email, password) },
-            modifier = Modifier.fillMaxWidth()
+            onClick = {
+                errorLocal = if (password != confirmPassword) {
+                    "Las contraseñas no coinciden."
+                } else {
+                    ""
+                }
+                if (errorLocal.isBlank()) {
+                    onRegisterSuccess(nombre, email, password)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !cargando
         ) {
-            Text("Crear cuenta de prueba")
+            Text(if (cargando) "Creando cuenta..." else "Crear cuenta de prueba")
         }
 
         Spacer(modifier = Modifier.height(8.dp))

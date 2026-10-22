@@ -1,51 +1,77 @@
 package com.example.comduocnotariapass.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import com.example.comduocnotariapass.model.CatalogoTramites
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.comduocnotariapass.model.DatosSolicitante
 import com.example.comduocnotariapass.model.Documento
+import com.example.comduocnotariapass.model.EstadoPersistido
 import com.example.comduocnotariapass.model.EstadoTramite
 import com.example.comduocnotariapass.model.FormatoTramite
 import com.example.comduocnotariapass.model.Pantalla
-import com.example.comduocnotariapass.model.ResultadoRevision
 import com.example.comduocnotariapass.model.RolSolicitante
 import com.example.comduocnotariapass.model.TipoFirma
+import com.example.comduocnotariapass.model.TramiteResumen
+import com.example.comduocnotariapass.repository.AuthRepository
+import com.example.comduocnotariapass.repository.ResultadoAuth
+import com.example.comduocnotariapass.repository.TramiteRepository
+import com.example.comduocnotariapass.repository.UsuarioSesion
+import com.example.comduocnotariapass.repository.local.NotariaDatabase
+import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val database = NotariaDatabase.obtener(application)
+    private val authRepository = AuthRepository(
+        usuarioDao = database.usuarioDao(),
+        sesionDao = database.sesionDao()
+    )
+    private val tramiteRepository = TramiteRepository(database.tramiteDao())
 
     // Historial de pantallas visitadas (tipo navegador)
     private val historial = mutableStateListOf(Pantalla.LOGIN)
     private var indice by mutableStateOf(0)
 
-    // BORRADOR DEL TRÁMITE (se conserva al navegar entre el paso 1, 2 y 3)
-
-    // Formato predefinido elegido en "Selección de Trámite y Archivos"
-    var formatoSeleccionado by mutableStateOf(CatalogoTramites.formatoPorDefecto)
+    var cargandoSesion by mutableStateOf(true)
         private set
 
-    // Documentos propios adjuntados por el solicitante
-    var documentosPropios by mutableStateOf<List<Documento>>(emptyList())
+    var cargandoLogin by mutableStateOf(false)
         private set
 
-    // Datos verificados en el paso 2 (nombre, ID y rol del solicitante)
-    var datosSolicitante by mutableStateOf(DatosSolicitante())
+    var errorLogin by mutableStateOf<String?>(null)
         private set
 
-    // Confirmación de que el solicitante revisó los antecedentes
-    var antecedentesRevisados by mutableStateOf(false)
+    var cargandoRegistro by mutableStateOf(false)
         private set
 
-    // Tipo de firma elegido en el paso 3
-    var tipoFirmaSeleccionado by mutableStateOf(TipoFirma.NOTARIADA)
+    var errorRegistro by mutableStateOf<String?>(null)
         private set
 
-    // Estado del trámite mostrado tras el envío (paso 3 de 3)
-    var estadoTramite by mutableStateOf(EstadoTramite())
+    var usuarioActual by mutableStateOf<UsuarioSesion?>(null)
         private set
+
+    val nombreUsuario: String
+        get() = usuarioActual?.nombre ?: "Persona Demo"
+
+    // Estado del trámite administrado por el repository
+    val formatoSeleccionado: FormatoTramite
+        get() = tramiteRepository.formatoSeleccionado
+    val documentosPropios: List<Documento>
+        get() = tramiteRepository.documentosPropios
+    val datosSolicitante: DatosSolicitante
+        get() = tramiteRepository.datosSolicitante
+    val antecedentesRevisados: Boolean
+        get() = tramiteRepository.antecedentesRevisados
+    val tipoFirmaSeleccionado: TipoFirma
+        get() = tramiteRepository.tipoFirmaSeleccionado
+    val estadoTramite: EstadoTramite
+        get() = tramiteRepository.estadoTramite
+    val tramites: List<TramiteResumen>
+        get() = tramiteRepository.tramites
 
     // Estado que indica qué pantalla se muestra actualmente
     val pantallaActual: Pantalla get() = historial[indice]
@@ -54,6 +80,19 @@ class MainViewModel : ViewModel() {
     val puedeVolver: Boolean get() = indice > 0
     val puedeAvanzar: Boolean get() = indice < historial.lastIndex
 
+    init {
+        viewModelScope.launch {
+            try {
+                val usuario = authRepository.sesionActiva()
+                if (usuario != null) {
+                    iniciarSesionInterna(usuario)
+                }
+            } finally {
+                cargandoSesion = false
+            }
+        }
+    }
+
     private fun navegarA(pantalla: Pantalla) {
         while (historial.lastIndex > indice) {
             historial.removeAt(historial.lastIndex)
@@ -61,6 +100,31 @@ class MainViewModel : ViewModel() {
         if (pantallaActual != pantalla) {
             historial.add(pantalla)
             indice = historial.lastIndex
+        }
+    }
+
+    private fun reiniciarNavegacion(pantalla: Pantalla) {
+        historial.clear()
+        historial.add(pantalla)
+        indice = 0
+    }
+
+    private suspend fun iniciarSesionInterna(
+        usuario: UsuarioSesion,
+        sembrarDemo: Boolean = false
+    ) {
+        usuarioActual = usuario
+        tramiteRepository.iniciarSesion(usuario)
+        if (sembrarDemo) {
+            tramiteRepository.sembrarDemo()
+        }
+        tramiteRepository.cargarTramites()
+        reiniciarNavegacion(Pantalla.MIS_TRAMITES)
+    }
+
+    private fun persistirBorrador() {
+        viewModelScope.launch {
+            tramiteRepository.guardarBorrador()
         }
     }
 
@@ -76,103 +140,172 @@ class MainViewModel : ViewModel() {
 
     // LoginScreen Clicks
     fun onLoginClick(correo: String, clave: String) {
-        // Aquí puedes agregar validación o llamados al repository
-        navegarA(Pantalla.MIS_TRAMITES)
+        if (cargandoLogin) return
+        cargandoLogin = true
+        errorLogin = null
+        viewModelScope.launch {
+            try {
+                when (val resultado = authRepository.iniciarSesion(correo, clave)) {
+                    is ResultadoAuth.Exito -> iniciarSesionInterna(resultado.usuario)
+                    is ResultadoAuth.Error -> errorLogin = resultado.mensaje
+                }
+            } finally {
+                cargandoLogin = false
+            }
+        }
     }
 
     fun onEntrarModoDemoClick() {
-        navegarA(Pantalla.MIS_TRAMITES)
+        if (cargandoLogin) return
+        cargandoLogin = true
+        errorLogin = null
+        viewModelScope.launch {
+            try {
+                when (val resultado = authRepository.entrarDemo()) {
+                    is ResultadoAuth.Exito -> iniciarSesionInterna(resultado.usuario)
+                    is ResultadoAuth.Error -> errorLogin = resultado.mensaje
+                }
+            } finally {
+                cargandoLogin = false
+            }
+        }
     }
 
     fun onIrARegistroClick() {
+        errorRegistro = null
         navegarA(Pantalla.REGISTRO)
     }
 
     // RegisterScreen Clicks
     fun onCrearCuentaClick(nombre: String, correo: String, clave: String) {
-        // Lógica de registro...
-        navegarA(Pantalla.MIS_TRAMITES)
+        if (cargandoRegistro) return
+        cargandoRegistro = true
+        errorRegistro = null
+        viewModelScope.launch {
+            try {
+                when (val resultado = authRepository.registrar(nombre, correo, clave)) {
+                    is ResultadoAuth.Exito -> iniciarSesionInterna(
+                        usuario = resultado.usuario,
+                        sembrarDemo = true
+                    )
+
+                    is ResultadoAuth.Error -> errorRegistro = resultado.mensaje
+                }
+            } finally {
+                cargandoRegistro = false
+            }
+        }
     }
 
     fun onVolverALoginClick() {
+        errorLogin = null
         navegarA(Pantalla.LOGIN)
+    }
+
+    fun cerrarSesion() {
+        viewModelScope.launch {
+            authRepository.cerrarSesion()
+            usuarioActual = null
+            tramiteRepository.limpiarSesion()
+            errorLogin = null
+            errorRegistro = null
+            reiniciarNavegacion(Pantalla.LOGIN)
+        }
     }
 
     // MisTramitesScreen Clicks
     fun onNuevoTramiteClick() {
-        limpiarBorrador()
+        tramiteRepository.limpiarBorrador()
         navegarA(Pantalla.NUEVO_TRAMITE)
     }
 
-    fun onTramiteClick() {
-        // El trámite abierto desde "Mis trámites" está observado
-        estadoTramite = EstadoTramite(resultado = ResultadoRevision.OBSERVACIONES)
-        navegarA(Pantalla.DETALLE_TRAMITE)
+    fun onTramiteClick(id: Long) {
+        viewModelScope.launch {
+            val resumen = tramiteRepository.cargarTramite(id) ?: return@launch
+            when (resumen.estado) {
+                EstadoPersistido.BORRADOR -> navegarA(Pantalla.NUEVO_TRAMITE)
+                EstadoPersistido.EN_REVISION,
+                EstadoPersistido.FINALIZADO -> navegarA(Pantalla.TRAMITE_ENVIADO)
+
+                EstadoPersistido.OBSERVACIONES -> navegarA(Pantalla.DETALLE_TRAMITE)
+            }
+        }
     }
 
     // NuevoTramiteScreen Clicks
 
     fun seleccionarFormato(formato: FormatoTramite) {
-        formatoSeleccionado = formato
+        tramiteRepository.seleccionarFormato(formato)
+        persistirBorrador()
     }
 
     fun agregarDocumentoPropio(documento: Documento) {
-        documentosPropios = documentosPropios + documento
+        tramiteRepository.agregarDocumentoPropio(documento)
+        persistirBorrador()
     }
 
     fun quitarDocumentoPropio(id: String) {
-        documentosPropios = documentosPropios.filterNot { it.id == id }
+        tramiteRepository.quitarDocumentoPropio(id)
+        persistirBorrador()
     }
 
     // RevisarAntecedentesScreen Clicks
     fun actualizarDatosSolicitante(nombre: String, id: String, rol: RolSolicitante) {
-        datosSolicitante = datosSolicitante.copy(nombre = nombre, id = id, rol = rol)
+        tramiteRepository.actualizarDatosSolicitante(nombre, id, rol)
+        persistirBorrador()
     }
 
     fun marcarAntecedentesRevisados(valor: Boolean) {
-        antecedentesRevisados = valor
+        tramiteRepository.marcarAntecedentesRevisados(valor)
     }
 
     fun limpiarBorrador() {
-        formatoSeleccionado = CatalogoTramites.formatoPorDefecto
-        documentosPropios = emptyList()
-        datosSolicitante = DatosSolicitante()
-        antecedentesRevisados = false
-        tipoFirmaSeleccionado = TipoFirma.NOTARIADA
-        estadoTramite = EstadoTramite()
+        tramiteRepository.limpiarBorrador()
     }
 
     fun onContinuarRevisionClick() {
+        persistirBorrador()
         navegarA(Pantalla.REVISAR_ANTECEDENTES)
     }
 
     fun onVolverAMisTramitesClick() {
-        navegarA(Pantalla.MIS_TRAMITES)
+        viewModelScope.launch {
+            tramiteRepository.cargarTramites()
+            navegarA(Pantalla.MIS_TRAMITES)
+        }
     }
 
     // RevisarAntecedentesScreen Clicks
     fun onContinuarFirmaClick() {
+        persistirBorrador()
         navegarA(Pantalla.FIRMA_ENVIO)
     }
 
     // FirmaEnvioScreen Clicks
     fun seleccionarTipoFirma(tipo: TipoFirma) {
-        tipoFirmaSeleccionado = tipo
+        tramiteRepository.seleccionarTipoFirma(tipo)
+        persistirBorrador()
     }
 
     fun onEnviarNotarioClick() {
-        estadoTramite = EstadoTramite()
-        navegarA(Pantalla.TRAMITE_ENVIADO)
+        viewModelScope.launch {
+            tramiteRepository.enviarAlNotario()
+            navegarA(Pantalla.TRAMITE_ENVIADO)
+        }
     }
 
     // TramiteEnviadoScreen Clicks
     fun simularResolucion() {
-        estadoTramite = estadoTramite.copy(resultado = estadoTramite.siguienteResultado())
+        viewModelScope.launch {
+            tramiteRepository.simularResolucion()
+        }
     }
 
     // DetalleTramiteScreen Clicks
     fun onReenviarRevisionClick() {
-        estadoTramite = EstadoTramite()
-        navegarA(Pantalla.REVISAR_ANTECEDENTES)
+        viewModelScope.launch {
+            tramiteRepository.prepararReenvio()
+            navegarA(Pantalla.REVISAR_ANTECEDENTES)
+        }
     }
 }

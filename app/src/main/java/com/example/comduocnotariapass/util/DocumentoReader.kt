@@ -1,6 +1,7 @@
 package com.example.comduocnotariapass.util
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.example.comduocnotariapass.model.Documento
@@ -21,6 +22,15 @@ enum class ResultadoValidacion {
 
 // Lee nombre, tipo y tamaño reales de un archivo elegido con el selector del sistema (SAF)
 fun Context.leerDocumento(uri: Uri): Documento {
+    try {
+        contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+    } catch (_: SecurityException) {
+        // El proveedor no ofrece permisos persistentes; se mantiene solo la URI.
+    }
+
     var nombre = ""
     var tamano = 0L
 
