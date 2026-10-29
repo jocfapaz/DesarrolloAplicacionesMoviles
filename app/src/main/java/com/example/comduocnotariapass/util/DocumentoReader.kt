@@ -9,7 +9,7 @@ import java.util.Locale
 import java.util.UUID
 
 // Límite de 10 MB por archivo declarado en la pantalla de adjuntos
-const val TAMANO_MAXIMO_BYTES: Long = 10L * 1024L * 1024L
+const val TAMANO_MAXIMO_BYTES: Long = 50L * 1024L * 1024L
 
 // Tipos de archivo permitidos: PDF, PNG o JPG
 val MIME_PERMITIDOS = listOf("application/pdf", "image/png", "image/jpeg")
@@ -87,7 +87,7 @@ fun validarDocumento(documento: Documento): ResultadoValidacion = when {
 fun mensajeError(resultado: ResultadoValidacion): String = when (resultado) {
     ResultadoValidacion.VALIDO -> ""
     ResultadoValidacion.TIPO_NO_PERMITIDO -> "Tipo de archivo no permitido. Solo PDF, PNG o JPG."
-    ResultadoValidacion.EXCEDE_LIMITE -> "El archivo supera el límite de 10 MB."
+    ResultadoValidacion.EXCEDE_LIMITE -> "El archivo supera el límite de 50 MB."
 }
 
 fun formatearTamano(bytes: Long): String = when {

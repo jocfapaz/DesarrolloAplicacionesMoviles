@@ -233,7 +233,7 @@ fun NuevoTramiteScreen(
                 modifier = Modifier.size(14.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text("PDF, PNG o JPG, hasta 10 MB por archivo", fontSize = 10.sp, color = Color.Gray)
+            Text("PDF, PNG o JPG, hasta 50 MB por archivo", fontSize = 10.sp, color = Color.Gray)
         }
 
         if (errorArchivo.isNotBlank()) {

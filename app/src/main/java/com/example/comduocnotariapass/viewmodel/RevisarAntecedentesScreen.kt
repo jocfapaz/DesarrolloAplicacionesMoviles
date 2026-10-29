@@ -97,13 +97,12 @@ fun RevisarAntecedentesScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(formatoSeleccionado.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Formato · Creado el 12 oct. 2026", fontSize = 12.sp, color = Color.Gray)
+                Text("Formato · Creado el 27 oct. 2026", fontSize = 12.sp, color = Color.Gray)
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray)
 
-                Text("Correo: persona@demo.invalid", fontSize = 12.sp)
-                Text("Región: Región · Dato ficticio", fontSize = 12.sp)
-                Text("Comuna: Sin completar", fontSize = 12.sp, color = Color.Red)
+                Text("Correo: persona@demo.com", fontSize = 12.sp)
+                Text("Región: Región Metropolitana", fontSize = 12.sp)
             }
         }
 
@@ -269,7 +268,6 @@ fun DocumentoItemView(nombre: String, subtext: String) {
                 Text(nombre, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 Text(subtext, fontSize = 11.sp, color = Color.Gray)
             }
-            Icon(Icons.Default.Visibility, contentDescription = "Ver", tint = Color.Gray)
         }
     }
 }
