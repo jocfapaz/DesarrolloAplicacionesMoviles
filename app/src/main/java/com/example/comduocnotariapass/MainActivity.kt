@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.comduocnotariapass.model.CatalogoTramites
 import com.example.comduocnotariapass.model.Pantalla
 import com.example.comduocnotariapass.ui.theme.ComduocNotariaPassTheme
 import com.example.comduocnotariapass.viewmodel.DetalleTramiteScreen
@@ -104,7 +103,7 @@ class MainActivity : ComponentActivity() {
 
                             Pantalla.NUEVO_TRAMITE -> {
                                 NuevoTramiteScreen(
-                                    formatos = CatalogoTramites.formatos,
+                                    formatos = mainViewModel.formatos,
                                     formatoSeleccionado = mainViewModel.formatoSeleccionado,
                                     documentosPropios = mainViewModel.documentosPropios,
                                     onSeleccionarFormato = { formato ->

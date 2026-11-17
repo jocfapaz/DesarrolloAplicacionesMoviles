@@ -58,6 +58,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         get() = usuarioActual?.nombre ?: "Persona Demo"
 
     // Estado del trámite administrado por el repository
+    val formatos: List<FormatoTramite>
+        get() = tramiteRepository.formatos
     val formatoSeleccionado: FormatoTramite
         get() = tramiteRepository.formatoSeleccionado
     val documentosPropios: List<Documento>
