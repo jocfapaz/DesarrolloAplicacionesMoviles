@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object XanoClient {
 
-    private const val BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:3OvTefWS/auth/login"
+    private const val BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:3OvTefWS/"
 
     var token: String? = null
 

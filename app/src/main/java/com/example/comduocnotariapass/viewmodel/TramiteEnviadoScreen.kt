@@ -33,6 +33,7 @@ fun TramiteEnviadoScreen(
     tipoFirma: TipoFirma,
     estadoTramite: EstadoTramite,
     onSimularResolucion: () -> Unit,
+    onConfirmarEnvio: () -> Unit,
     onVolverInicio: () -> Unit,
     puedeVolver: Boolean,
     puedeAvanzar: Boolean,
@@ -178,6 +179,7 @@ fun TramiteEnviadoScreen(
                 TextButton(
                     onClick = {
                         mostrarModal = false
+                        onConfirmarEnvio()
                         onVolverInicio()
                     }
                 ) {

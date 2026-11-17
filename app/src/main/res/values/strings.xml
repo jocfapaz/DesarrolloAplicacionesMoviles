@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">com.duoc.NotariaPass</string>
+    <string name="notificacion_firma_confirmada_titulo">Firma confirmada</string>
+    <string name="notificacion_firma_confirmada_mensaje">Tu solicitud de trámite fue enviada correctamente.</string>
+    <string name="notificacion_firma_confirmada_canal">Confirmación de firma</string>
+    <string name="notificacion_firma_confirmada_canal_descripcion">Notificaciones de confirmación de firma de trámites.</string>
 </resources>

@@ -1,9 +1,11 @@
 package com.example.comduocnotariapass
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.comduocnotariapass.model.Pantalla
 import com.example.comduocnotariapass.ui.theme.ComduocNotariaPassTheme
+import com.example.comduocnotariapass.util.NotificacionesHelper
 import com.example.comduocnotariapass.viewmodel.DetalleTramiteScreen
 import com.example.comduocnotariapass.viewmodel.FirmaEnvioScreen
 import com.example.comduocnotariapass.viewmodel.LoginScreen
@@ -30,10 +33,19 @@ class MainActivity : ComponentActivity() {
     // Instancia del ViewModel
     private val mainViewModel: MainViewModel by viewModels()
 
+    private val solicitarPermisoNotificacion = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (concedido) {
+            NotificacionesHelper.mostrarFirmaConfirmada(this)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        NotificacionesHelper.crearCanal(this)
         setContent {
             ComduocNotariaPassTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
@@ -173,6 +185,13 @@ class MainActivity : ComponentActivity() {
                                     estadoTramite = mainViewModel.estadoTramite,
                                     onSimularResolucion = {
                                         mainViewModel.simularResolucion()
+                                    },
+                                    onConfirmarEnvio = {
+                                        if (NotificacionesHelper.tienePermiso(this)) {
+                                            NotificacionesHelper.mostrarFirmaConfirmada(this)
+                                        } else {
+                                            solicitarPermisoNotificacion.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
                                     },
                                     onVolverInicio = {
                                         mainViewModel.onVolverAMisTramitesClick()
