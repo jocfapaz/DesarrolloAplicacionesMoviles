@@ -105,7 +105,8 @@ class TramiteRepository(
     }
 
     fun limpiarBorrador() {
-        formatoSeleccionado = formatos.firstOrNull { it.id == "declaracion-jurada" }
+        formatoSeleccionado = formatos.firstOrNull { it.clave == "declaracion-jurada" }
+            ?: formatos.firstOrNull { it.id == "declaracion-jurada" }
             ?: formatos.firstOrNull()
             ?: CatalogoTramites.formatoPorDefecto
         documentosPropios = emptyList()
@@ -150,16 +151,16 @@ class TramiteRepository(
         aplicarTramite(data)
         detalle?.tramite?.let { dto ->
             tramiteRemotoId = dto.id.takeIf { valor -> valor > 0 } ?: tramiteRemotoId
-            if (dto.estado.isNotBlank()) {
+            if (!dto.estado.isNullOrBlank()) {
                 estadoPersistido = valorEnum(dto.estado, estadoPersistido)
             }
             dto.resultado?.let { valor ->
                 estadoTramite = estadoTramite.copy(
-                    resultado = runCatching { ResultadoRevision.valueOf(valor) }.getOrNull()
+                    resultado = runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()
                 )
             }
         }
-        detalle?.tramite?.takeIf { it.codigo.isNotBlank() }?.aResumen() ?: data.aResumen()
+        detalle?.tramite?.takeIf { !it.codigo.isNullOrBlank() }?.aResumen() ?: data.aResumen()
     }
 
     suspend fun enviarAlNotario() = mutex.withLock {
@@ -179,7 +180,7 @@ class TramiteRepository(
     suspend fun simularResolucion() = mutex.withLock {
         val estadoRemoto = tramiteRemotoId?.let { id -> runCatching { remote.estado(id) }.getOrNull() }
         val resultado = estadoRemoto?.resultado?.let { valor ->
-            runCatching { ResultadoRevision.valueOf(valor) }.getOrNull()
+            runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()
         } ?: estadoTramite.siguienteResultado()
 
         estadoTramite = estadoTramite.copy(resultado = resultado)
@@ -323,34 +324,35 @@ class TramiteRepository(
 
         val remotos = runCatching { remote.tramites(usuarioId) }.getOrNull().orEmpty()
         remotos.forEach { dto ->
-            if (dto.codigo.isBlank()) return@forEach
+            if (dto.codigo.isNullOrBlank()) return@forEach
             val local = tramiteDao.obtenerPorCodigo(dto.codigo)
             tramiteDao.guardar(
                 tramite = TramiteEntity(
                     id = local?.tramite?.id ?: 0,
                     usuarioId = usuarioId,
                     codigo = dto.codigo,
-                    formatoId = dto.formatoId.ifBlank {
+                    formatoId = dto.formatoId.orEmpty().ifBlank {
                         local?.tramite?.formatoId ?: formatoSeleccionado.id
                     },
-                    formatoNombre = dto.formatoNombre.ifBlank {
+                    formatoNombre = dto.formatoNombre.orEmpty().ifBlank {
                         local?.tramite?.formatoNombre ?: formatoSeleccionado.nombre
                     },
                     fechaCreacion = dto.fechaCreacion.takeIf { it > 0 }
                         ?: local?.tramite?.fechaCreacion
                         ?: System.currentTimeMillis(),
-                    estado = dto.estado.ifBlank { local?.tramite?.estado ?: "BORRADOR" },
-                    resultado = dto.resultado ?: local?.tramite?.resultado,
-                    tipoFirma = dto.tipoFirma.ifBlank {
+                    estado = dto.estado.orEmpty().ifBlank { local?.tramite?.estado ?: "BORRADOR" },
+                    resultado = dto.resultado?.takeIf { it.isNotBlank() }
+                        ?: local?.tramite?.resultado,
+                    tipoFirma = dto.tipoFirma.orEmpty().ifBlank {
                         local?.tramite?.tipoFirma ?: TipoFirma.NOTARIADA.name
                     },
-                    solicitanteNombre = dto.solicitanteNombre.ifBlank {
+                    solicitanteNombre = dto.solicitanteNombre.orEmpty().ifBlank {
                         local?.tramite?.solicitanteNombre ?: nombreUsuarioActual
                     },
-                    solicitanteId = dto.solicitanteId.ifBlank {
+                    solicitanteId = dto.solicitanteId.orEmpty().ifBlank {
                         local?.tramite?.solicitanteId ?: idUsuarioActual
                     },
-                    solicitanteRol = dto.solicitanteRol.ifBlank {
+                    solicitanteRol = dto.solicitanteRol.orEmpty().ifBlank {
                         local?.tramite?.solicitanteRol ?: RolSolicitante.PERSONA_NATURAL.name
                     }
                 ),
@@ -364,7 +366,7 @@ class TramiteRepository(
     private suspend fun cargarFormatosRemotos() {
         val remotos = runCatching { remote.formatos() }.getOrNull().orEmpty()
         val convertidos = remotos
-            .filter { it.id.isNotBlank() && it.nombre.isNotBlank() }
+            .filter { !it.id.isNullOrBlank() && !it.nombre.isNullOrBlank() }
             .map { it.aFormato() }
         if (convertidos.isNotEmpty()) {
             formatos = convertidos
@@ -395,7 +397,7 @@ class TramiteRepository(
         estadoTramite = EstadoTramite(
             id = tramite.codigo,
             resultado = tramite.resultado?.let { valor ->
-                runCatching { ResultadoRevision.valueOf(valor) }.getOrNull()
+                runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()
             }
         )
         antecedentesRevisados = true
@@ -411,7 +413,7 @@ class TramiteRepository(
         fechaCreacion = tramite.fechaCreacion,
         estado = valorEnum(tramite.estado, EstadoPersistido.BORRADOR),
         resultado = tramite.resultado?.let { valor ->
-            runCatching { ResultadoRevision.valueOf(valor) }.getOrNull()
+            runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()
         }
     )
 
@@ -445,6 +447,6 @@ class TramiteRepository(
     private fun generarCodigo(): String =
         "NX-${System.currentTimeMillis().toString().takeLast(6)}"
 
-    private inline fun <reified T : Enum<T>> valorEnum(valor: String, porDefecto: T): T =
-        runCatching { enumValueOf<T>(valor) }.getOrDefault(porDefecto)
+    private inline fun <reified T : Enum<T>> valorEnum(valor: String?, porDefecto: T): T =
+        runCatching { enumValueOf<T>(valor.orEmpty().uppercase()) }.getOrDefault(porDefecto)
 }

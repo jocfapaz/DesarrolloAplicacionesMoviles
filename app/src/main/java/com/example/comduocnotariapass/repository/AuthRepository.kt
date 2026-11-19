@@ -44,7 +44,7 @@ class AuthRepository(
         if (respuesta != null) {
             val usuario = sincronizarUsuario(
                 idRemoto = respuesta.id,
-                nombre = respuesta.nombre,
+                nombre = respuesta.nombre.orEmpty(),
                 correo = correoLimpio,
                 clave = clave
             )
@@ -81,7 +81,7 @@ class AuthRepository(
         if (respuesta != null) {
             val usuario = sincronizarUsuario(
                 idRemoto = respuesta.id,
-                nombre = respuesta.nombre.ifBlank { nombreLimpio },
+                nombre = respuesta.nombre.orEmpty().ifBlank { nombreLimpio },
                 correo = correoLimpio,
                 clave = clave
             )
