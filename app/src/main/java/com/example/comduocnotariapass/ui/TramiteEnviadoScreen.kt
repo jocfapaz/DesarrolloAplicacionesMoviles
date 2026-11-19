@@ -1,4 +1,4 @@
-package com.example.comduocnotariapass.viewmodel
+package com.example.comduocnotariapass.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

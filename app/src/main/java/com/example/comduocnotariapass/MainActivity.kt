@@ -17,15 +17,15 @@ import androidx.compose.ui.Modifier
 import com.example.comduocnotariapass.model.Pantalla
 import com.example.comduocnotariapass.ui.theme.ComduocNotariaPassTheme
 import com.example.comduocnotariapass.util.NotificacionesHelper
-import com.example.comduocnotariapass.viewmodel.DetalleTramiteScreen
-import com.example.comduocnotariapass.viewmodel.FirmaEnvioScreen
-import com.example.comduocnotariapass.viewmodel.LoginScreen
+import com.example.comduocnotariapass.ui.DetalleTramiteScreen
+import com.example.comduocnotariapass.ui.FirmaEnvioScreen
+import com.example.comduocnotariapass.ui.LoginScreen
 import com.example.comduocnotariapass.viewmodel.MainViewModel
-import com.example.comduocnotariapass.viewmodel.MisTramitesScreen
-import com.example.comduocnotariapass.viewmodel.NuevoTramiteScreen
-import com.example.comduocnotariapass.viewmodel.RegisterScreen
-import com.example.comduocnotariapass.viewmodel.RevisarAntecedentesScreen
-import com.example.comduocnotariapass.viewmodel.TramiteEnviadoScreen
+import com.example.comduocnotariapass.ui.MisTramitesScreen
+import com.example.comduocnotariapass.ui.NuevoTramiteScreen
+import com.example.comduocnotariapass.ui.RegisterScreen
+import com.example.comduocnotariapass.ui.RevisarAntecedentesScreen
+import com.example.comduocnotariapass.ui.TramiteEnviadoScreen
 
 
 class MainActivity : ComponentActivity() {

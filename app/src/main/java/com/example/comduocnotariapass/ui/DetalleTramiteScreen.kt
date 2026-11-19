@@ -1,4 +1,4 @@
-package com.example.comduocnotariapass.viewmodel
+package com.example.comduocnotariapass.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
