@@ -125,8 +125,6 @@ La aplicación se conecta al backend desarrollado en **Xano** mediante **Retrofi
 ### Generación del Keystore (`.jks`)
 Archivo de firma digital generado desde Android Studio (`Build > Generate Signed Bundle / APK`) para la distribución de la aplicación:
 
-![Evidencia Keystore .jks](docs/evidencias/captura_jks.png)
-
 ### APK Firmado (`app-release.apk`)
 Evidencia de la generación exitosa del paquete de instalación firmado listo para despliegue:
 
