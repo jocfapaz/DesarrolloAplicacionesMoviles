@@ -34,15 +34,7 @@ fun MisTramitesScreen(
     onVolver: () -> Unit,
     onAvanzar: () -> Unit
 ) {
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(selected = true, onClick = {}, label = { Text("Mis trámites") }, icon = {})
-                NavigationBarItem(selected = false, onClick = {}, label = { Text("Ayuda demo") }, icon = {})
-                NavigationBarItem(selected = false, onClick = {}, label = { Text("Perfil demo") }, icon = {})
-            }
-        }
-    ) { paddingValues ->
+    Scaffold() { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

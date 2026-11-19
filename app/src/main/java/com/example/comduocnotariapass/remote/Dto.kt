@@ -7,6 +7,11 @@ import com.example.comduocnotariapass.model.ResultadoRevision
 import com.example.comduocnotariapass.model.TramiteResumen
 import com.google.gson.annotations.SerializedName
 
+// ============================================================================
+// MODELOS DE PETICIÓN (REQUESTS) - Datos enviados hacia la API
+// ============================================================================
+
+// Representa el cuerpo de la petición para el inicio de sesión de un usuario.
 data class LoginRequest(
     @SerializedName("correo") val correo: String,
     @SerializedName("clave") val clave: String,
@@ -14,7 +19,8 @@ data class LoginRequest(
 )
 
 
-
+// Representa los datos necesarios para registrar un nuevo usuario junto con la información
+// inicial de su trámite asociado.
 data class RegistroRequest(
     @SerializedName("correo") val correo: String,
     @SerializedName("clave") val clave: String,
@@ -33,6 +39,8 @@ data class RegistroRequest(
     @SerializedName("observacion") val observacion: String?
 )
 
+
+// Datos requeridos para iniciar o crear una nueva solicitud de trámite notarial.
 data class CrearTramiteRequest(
     @SerializedName("usuario_id") val usuarioId: Long,
     @SerializedName("formato_id") val formatoId: String,
@@ -41,24 +49,38 @@ data class CrearTramiteRequest(
     @SerializedName("solicitante_rol") val solicitanteRol: String
 )
 
+
+// Metadatos de un archivo adjunto que se envía al servidor.
 data class DocumentoRequest(
     @SerializedName("nombre") val nombre: String,
     @SerializedName("mime_type") val mimeType: String,
     @SerializedName("tamano_bytes") val tamanoBytes: Long
 )
 
+
+// Petición para confirmar el envío de un trámite especificando la modalidad de firma.
 data class EnviarRequest(@SerializedName("tipo_firma") val tipoFirma: String)
 
+
+// Petición utilizada por un revisor o notario para emitir el dictamen de un trámite.
 data class ResolucionRequest(
     @SerializedName("resultado") val resultado: String,
     @SerializedName("comentario") val comentario: String? = null
 )
 
+
+// Estructura para enviar una notificación o mensaje asociado a un trámite específico.
 data class NotificacionRequest(
     @SerializedName("tramite_id") val tramiteId: Long,
     @SerializedName("mensaje") val mensaje: String
 )
 
+
+// ============================================================================
+// MODELOS DE RESPUESTA (DTOs) - Datos recibidos desde la API
+// ============================================================================
+
+//Respuesta recibida tras una autenticación exitosa.
 data class AuthResponse(
     @SerializedName("authToken") val authToken: String? = null,
     @SerializedName("token") val token: String? = null,
@@ -69,6 +91,8 @@ data class AuthResponse(
     val tokenValido: String get() = authToken ?: token.orEmpty()
 }
 
+
+// Objeto de transferencia de datos (DTO) que representa un documento almacenado en el backend.
 data class DocumentoDto(
     @SerializedName("id") val id: Long = 0,
     @SerializedName("nombre") val nombre: String? = null,
@@ -77,6 +101,8 @@ data class DocumentoDto(
     @SerializedName("uri") val uri: String? = null
 )
 
+
+// DTO que describe una plantilla o formato de trámite disponible en el sistema.
 data class FormatoDto(
     @SerializedName("id") val id: String? = null,
     @SerializedName("nombre") val nombre: String? = null,
@@ -86,6 +112,7 @@ data class FormatoDto(
     @SerializedName("documentos_inclusos") val documentosInclusos: List<DocumentoDto>? = null
 )
 
+// DTO con la información completa de un trámite notarial registrado.
 data class TramiteDto(
     @SerializedName("id") val id: Long = 0,
     @SerializedName("usuario_id") val usuarioId: Long = 0,
@@ -103,17 +130,23 @@ data class TramiteDto(
     @SerializedName("observacion") val observacion: String? = null
 )
 
+
+// DTO compuesto que agrupa los datos principales de un trámite junto con sus archivos adjuntos.
 data class TramiteDetalleDto(
     @SerializedName("tramite") val tramite: TramiteDto? = null,
     @SerializedName("documentos") val documentos: List<DocumentoDto>? = null
 )
 
+
+// DTO ligero utilizado para consultar actualizaciones rápidas del estado de un trámite.
 data class EstadoDto(
     @SerializedName("estado") val estado: String? = null,
     @SerializedName("resultado") val resultado: String? = null,
     @SerializedName("codigo") val codigo: String? = null
 )
 
+
+// DTO que representa la información geográfica y de contacto de una notaría.
 data class NotariaDto(
     @SerializedName("id") val id: Long = 0,
     @SerializedName("nombre") val nombre: String? = null,
@@ -123,6 +156,12 @@ data class NotariaDto(
     @SerializedName("lng") val lng: Double = 0.0
 )
 
+// ============================================================================
+// FUNCIONES DE MAPEO (MAPPERS) - Conversión de DTOs a Modelos de Dominio
+// ============================================================================
+
+// Convierte un [DocumentoDto] proveniente de la API al modelo de dominio [Documento][cite: 1].
+// Maneja valores nulos asignando cadenas vacías por defecto
 fun DocumentoDto.aDocumento(): Documento = Documento(
     id = id.toString(),
     nombre = nombre.orEmpty(),
@@ -131,6 +170,8 @@ fun DocumentoDto.aDocumento(): Documento = Documento(
     uri = uri
 )
 
+// Convierte un [FormatoDto] de red al modelo de dominio [FormatoTramite],
+// transformando también su lista interna de documentos
 fun FormatoDto.aFormato(): FormatoTramite = FormatoTramite(
     id = id.orEmpty(),
     nombre = nombre.orEmpty(),
@@ -139,6 +180,14 @@ fun FormatoDto.aFormato(): FormatoTramite = FormatoTramite(
     clave = clave.orEmpty()
 )
 
+
+/*
+ - Transforma un [TramiteDto] en un modelo simplificado [TramiteResumen] para su visualización en listas[cite: 1].
+
+ - Convierte de forma segura las cadenas de texto `estado` y `resultado` a sus respectivos `enum`
+ - ([EstadoPersistido] y [ResultadoRevision]), asignando [EstadoPersistido.BORRADOR] o `null` en caso de
+ - valores desconocidos o inválidos
+*/
 fun TramiteDto.aResumen(): TramiteResumen = TramiteResumen(
     id = id,
     titulo = formatoNombre.orEmpty(),
