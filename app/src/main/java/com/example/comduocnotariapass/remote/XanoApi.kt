@@ -18,7 +18,7 @@ interface XanoApi {
     suspend fun formatos(): List<FormatoDto>
 
     @GET("tramite")
-    suspend fun tramites(@Query("usuarioId") usuarioId: Long): List<TramiteDto>
+    suspend fun tramites(@Query("usuario_id") usuarioId: Long): List<TramiteDto>
 
     @POST("tramite")
     suspend fun crear(@Body body: CrearTramiteRequest): TramiteDto
