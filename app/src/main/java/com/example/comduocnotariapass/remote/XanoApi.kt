@@ -14,31 +14,31 @@ interface XanoApi {
     @POST("auth/login")
     suspend fun login(@Body body: LoginRequest): AuthResponse
 
-    @GET("formatos")
+    @GET("formato")
     suspend fun formatos(): List<FormatoDto>
 
-    @GET("tramites")
+    @GET("tramite")
     suspend fun tramites(@Query("usuarioId") usuarioId: Long): List<TramiteDto>
 
-    @POST("tramites")
+    @POST("tramite")
     suspend fun crear(@Body body: CrearTramiteRequest): TramiteDto
 
-    @GET("tramites/{id}")
+    @GET("tramite/{id}")
     suspend fun detalle(@Path("id") id: Long): TramiteDetalleDto
 
-    @POST("tramites/{id}/documentos")
+    @POST("tramite/{id}/documentos")
     suspend fun documento(
         @Path("id") id: Long,
         @Body body: DocumentoRequest
     ): DocumentoDto
 
-    @POST("tramites/{id}/enviar")
+    @POST("tramite/{id}/enviar")
     suspend fun enviar(@Path("id") id: Long, @Body body: EnviarRequest): TramiteDto
 
-    @GET("tramites/{id}/estado")
+    @GET("tramite/{id}/estado")
     suspend fun estado(@Path("id") id: Long): EstadoDto
 
-    @POST("tramites/{id}/resolucion")
+    @POST("tramite/{id}/resolucion")
     suspend fun resolucion(
         @Path("id") id: Long,
         @Body body: ResolucionRequest
@@ -47,6 +47,6 @@ interface XanoApi {
     @POST("notificaciones")
     suspend fun notificacion(@Body body: NotificacionRequest): Any
 
-    @GET("notarias")
+    @GET("notaria")
     suspend fun notarias(@Query("comuna") comuna: String): List<NotariaDto>
 }

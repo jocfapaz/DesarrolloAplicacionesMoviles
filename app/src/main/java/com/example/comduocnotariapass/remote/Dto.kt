@@ -52,23 +52,27 @@ data class DocumentoDto(
 data class FormatoDto(
     @SerializedName("id") val id: String = "",
     @SerializedName("nombre") val nombre: String = "",
+    @SerializedName("clave") val clave: String = "",
+    @SerializedName("activo") val activo: Boolean = true,
     @SerializedName("descripcion") val descripcion: String = "",
-    @SerializedName("documentosInclusos") val documentosInclusos: List<DocumentoDto> = emptyList()
+    @SerializedName("documentos_inclusos") val documentosInclusos: List<DocumentoDto> = emptyList()
 )
 
 data class TramiteDto(
     @SerializedName("id") val id: Long = 0,
-    @SerializedName("usuarioId") val usuarioId: Long = 0,
-    @SerializedName("codigo") val codigo: String = "",
-    @SerializedName("formatoId") val formatoId: String = "",
-    @SerializedName("formatoNombre") val formatoNombre: String = "",
-    @SerializedName("fechaCreacion") val fechaCreacion: Long = 0,
+    @SerializedName("usuario_id") val usuarioId: Long = 0,
+    @SerializedName("code") val codigo: String = "",
+    @SerializedName("formato_id") val formatoId: String = "",
+    @SerializedName("formato_nombre") val formatoNombre: String = "",
+    @SerializedName("fecha_creacion") val fechaCreacion: Long = 0,
     @SerializedName("estado") val estado: String = "BORRADOR",
     @SerializedName("resultado") val resultado: String? = null,
-    @SerializedName("tipoFirma") val tipoFirma: String = "NOTARIADA",
-    @SerializedName("solicitanteNombre") val solicitanteNombre: String = "",
-    @SerializedName("solicitanteId") val solicitanteId: String = "",
-    @SerializedName("solicitanteRol") val solicitanteRol: String = "PERSONA_NATURAL"
+    @SerializedName("tipo_firma") val tipoFirma: String = "NOTARIADA",
+    @SerializedName("solicitante_nombre") val solicitanteNombre: String = "",
+    @SerializedName("solicitante_id") val solicitanteId: String = "",
+    @SerializedName("solicitante_rol") val solicitanteRol: String = "PERSONA_NATURAL",
+    @SerializedName("notaria_id") val notariaId: Long? = null,
+    @SerializedName("observacion") val observacion: String? = null
 )
 
 data class TramiteDetalleDto(
