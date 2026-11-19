@@ -1,6 +1,7 @@
 package com.example.comduocnotariapass.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -89,6 +90,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (usuario != null) {
                     iniciarSesionInterna(usuario)
                 }
+            } catch (error: Exception) {
+                Log.e("MainViewModel", "Error al restaurar la sesión", error)
             } finally {
                 cargandoSesion = false
             }
