@@ -9,13 +9,28 @@ import com.google.gson.annotations.SerializedName
 
 data class LoginRequest(
     @SerializedName("correo") val correo: String,
-    @SerializedName("clave") val clave: String
+    @SerializedName("clave") val clave: String,
+    @SerializedName("estado") val estado: String="123",
 )
 
+
+
 data class RegistroRequest(
-    @SerializedName("nombre") val nombre: String,
     @SerializedName("correo") val correo: String,
-    @SerializedName("clave") val clave: String
+    @SerializedName("clave") val clave: String,
+    @SerializedName("code") val code: String,
+    @SerializedName("usuario_id") val usuarioId: Int,
+    @SerializedName("formato_id") val formatoId: String,
+    @SerializedName("formato_nombre") val formatoNombre: String,
+    @SerializedName("fecha_creacion") val fechaCreacion: String,
+    @SerializedName("estado") val estado: String,
+    @SerializedName("resultado") val resultado: String,
+    @SerializedName("tipo_firma") val tipoFirma: String,
+    @SerializedName("solicitante_nombre") val solicitanteNombre: String,
+    @SerializedName("solicitante_id") val solicitanteId: String,
+    @SerializedName("solicitante_rol") val solicitanteRol: String,
+    @SerializedName("notaria_id") val notariaId: Int,
+    @SerializedName("observacion") val observacion: String?
 )
 
 data class CrearTramiteRequest(

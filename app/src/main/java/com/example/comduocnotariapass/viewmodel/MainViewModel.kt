@@ -183,6 +183,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // RegisterScreen Clicks
     fun onCrearCuentaClick(nombre: String, correo: String, clave: String) {
+        println("Inicia con crear cuenta en MainViewmodel")
         if (cargandoRegistro) return
         cargandoRegistro = true
         errorRegistro = null

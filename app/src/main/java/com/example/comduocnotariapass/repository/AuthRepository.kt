@@ -55,6 +55,7 @@ class AuthRepository(
     }
 
     suspend fun registrar(nombre: String, correo: String, clave: String): ResultadoAuth {
+        println("Ahora estoy en registrar")
         val nombreLimpio = nombre.trim()
         val correoLimpio = correo.trim().lowercase()
 

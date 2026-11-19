@@ -9,10 +9,29 @@ class XanoDataSource(private val api: XanoApi = XanoClient.api) {
     }
 
     suspend fun registrar(nombre: String, correo: String, clave: String): AuthResponse {
-        val respuesta = api.registrar(RegistroRequest(nombre, correo, clave))
+        val request = RegistroRequest(
+            code = "",
+            usuarioId = 0,
+            formatoId = "",
+            formatoNombre = "",
+            fechaCreacion = "",
+            estado = "ACTIVO",
+            resultado = "",
+            tipoFirma = "",
+            solicitanteNombre = nombre,
+            solicitanteId = "",
+            solicitanteRol = "",
+            notariaId = 0,
+            observacion = null,
+            correo = correo,
+            clave = clave
+        )
+
+        val respuesta = api.registrar(request)
         guardarToken(respuesta)
         return respuesta
     }
+
 
     suspend fun login(correo: String, clave: String): AuthResponse {
         val respuesta = api.login(LoginRequest(correo, clave))
