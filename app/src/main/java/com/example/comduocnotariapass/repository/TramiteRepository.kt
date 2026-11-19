@@ -260,7 +260,7 @@ class TramiteRepository(
             }.getOrNull()
             if (creado != null) {
                 tramiteRemotoId = creado.id.takeIf { it > 0 }
-                if (creado.codigo.isNotBlank()) {
+                if (!creado.codigo.isNullOrBlank()) {
                     codigo = creado.codigo
                     codigoActual = codigo
                 }
