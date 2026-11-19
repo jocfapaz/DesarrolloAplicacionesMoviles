@@ -18,7 +18,8 @@ data class FormatoTramite(
     val id: String,
     val nombre: String,
     val descripcion: String,
-    val documentosInclusos: List<Documento>
+    val documentosInclusos: List<Documento>,
+    val clave: String = ""
 )
 
 // Calidad o rol del solicitante dentro del trámite
@@ -105,6 +106,7 @@ object CatalogoTramites {
             id = "poder-simple",
             nombre = "Poder simple",
             descripcion = "Para representación legal ante un tercero.",
+            clave = "poder-simple",
             documentosInclusos = listOf(
                 Documento(
                     id = "formato-poder-simple",
@@ -118,6 +120,7 @@ object CatalogoTramites {
             id = "declaracion-jurada",
             nombre = "Declaración jurada simple",
             descripcion = "Declaración jurada simple de fortnightaria.",
+            clave = "declaracion-jurada",
             documentosInclusos = listOf(
                 Documento(
                     id = "formato-declaracion-jurada",
@@ -137,6 +140,7 @@ object CatalogoTramites {
             id = "autorizacion-viaje",
             nombre = "Autorización de viaje",
             descripcion = "Autorización de viaje de menores.",
+            clave = "autorizacion-viaje",
             documentosInclusos = listOf(
                 Documento(
                     id = "formato-autorizacion-viaje",
