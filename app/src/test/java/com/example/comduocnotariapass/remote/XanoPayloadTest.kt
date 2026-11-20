@@ -150,7 +150,7 @@ class XanoPayloadTest {
                 formatoNombre = "Declaración Jurada",
                 fechaCreacion = 1700000000000L,
                 estado = "BORRADOR",
-                resultado = null,
+                resultado = "",
                 tipoFirma = "NOTARIADA",
                 solicitanteNombre = "Juan",
                 solicitanteId = "111",
@@ -163,6 +163,7 @@ class XanoPayloadTest {
         assertTrue(crear.contains("\"formato_nombre\":\"Declaración Jurada\""))
         assertTrue(crear.contains("\"fecha_creacion\":1700000000000"))
         assertTrue(crear.contains("\"estado\":\"BORRADOR\""))
+        assertTrue(crear.contains("\"resultado\":\"\""))
         assertTrue(crear.contains("\"tipo_firma\":\"NOTARIADA\""))
         assertTrue(crear.contains("\"solicitante_nombre\":\"Juan\""))
         assertTrue(crear.contains("\"solicitante_id\":\"111\""))
@@ -217,5 +218,40 @@ class XanoPayloadTest {
         assertFalse(json.contains("solicitanteId"))
 
         println("OK: resolución serializada con todos los campos del trámite")
+    }
+
+    @Test
+    fun patchIncluyeTodosLosCamposYResultadoVacio() {
+        val json = gson.toJson(
+            ActualizarTramiteRequest(
+                codigo = "NX-777888",
+                usuarioId = 4L,
+                formatoId = "2",
+                formatoNombre = "Declaración Jurada",
+                fechaCreacion = 1700000000000L,
+                estado = "EN_REVISION",
+                resultado = "",
+                tipoFirma = "AVANZADA",
+                solicitanteNombre = "Isidora",
+                solicitanteId = "USR-CAMBIADO",
+                solicitanteRol = "APODERADO"
+            )
+        )
+
+        assertTrue(json.contains("\"code\":\"NX-777888\""))
+        assertTrue(json.contains("\"usuario_id\":4"))
+        assertTrue(json.contains("\"formato_id\":\"2\""))
+        assertTrue(json.contains("\"formato_nombre\":\"Declaración Jurada\""))
+        assertTrue(json.contains("\"fecha_creacion\":1700000000000"))
+        assertTrue(json.contains("\"estado\":\"EN_REVISION\""))
+        assertTrue(json.contains("\"resultado\":\"\""))
+        assertTrue(json.contains("\"tipo_firma\":\"AVANZADA\""))
+        assertTrue(json.contains("\"solicitante_nombre\":\"Isidora\""))
+        assertTrue(json.contains("\"solicitante_id\":\"USR-CAMBIADO\""))
+        assertTrue(json.contains("\"solicitante_rol\":\"APODERADO\""))
+        assertFalse(json.contains("solicitanteId"))
+        assertFalse(json.contains("tramite_id"))
+
+        println("OK: PATCH serializado con todos los campos y resultado explícito")
     }
 }

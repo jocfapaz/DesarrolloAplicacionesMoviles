@@ -10,6 +10,9 @@ package com.example.comduocnotariapass.remote
 class XanoDataSource(private val api: XanoApi = XanoClient.api) {
 
     companion object {
+        private const val URL_ACTUALIZAR_TRAMITE =
+            "https://x8ki-letl-twmt.n7.xano.io/api:hWo4AgqX/tramite/"
+
         // Elimina el token de sesión almacenado en [XanoClient], cerrando la sesión activa a nivel de red.
         fun limpiarToken() {
             XanoClient.token = null
@@ -82,6 +85,27 @@ class XanoDataSource(private val api: XanoApi = XanoClient.api) {
     // Crea un nuevo trámite notarial en el sistema.
     suspend fun crear(tramite: TramiteRemoto): TramiteDto = api.crear(
         CrearTramiteRequest(
+            codigo = tramite.codigo,
+            usuarioId = tramite.usuarioId,
+            formatoId = tramite.formatoId,
+            formatoNombre = tramite.formatoNombre,
+            fechaCreacion = tramite.fechaCreacion,
+            estado = tramite.estado,
+            resultado = tramite.resultado,
+            tipoFirma = tramite.tipoFirma,
+            solicitanteNombre = tramite.solicitanteNombre,
+            solicitanteId = tramite.solicitanteId,
+            solicitanteRol = tramite.solicitanteRol,
+            notariaId = tramite.notariaId,
+            observacion = tramite.observacion
+        )
+    )
+
+
+    // Actualiza un trámite existente con todos sus campos.
+    suspend fun actualizar(id: Long, tramite: TramiteRemoto): TramiteDto = api.actualizar(
+        "$URL_ACTUALIZAR_TRAMITE$id",
+        ActualizarTramiteRequest(
             codigo = tramite.codigo,
             usuarioId = tramite.usuarioId,
             formatoId = tramite.formatoId,

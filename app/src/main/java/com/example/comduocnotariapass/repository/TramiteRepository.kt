@@ -1,5 +1,6 @@
 package com.example.comduocnotariapass.repository
 
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +28,8 @@ import kotlinx.coroutines.sync.withLock
 
 class TramiteRepository(
     private val tramiteDao: TramiteDao,
-    private val remote: XanoDataSource = XanoDataSource()
+    private val remote: XanoDataSource = XanoDataSource(),
+    private val preferencias: SharedPreferences? = null
 ) {
 
     private val mutex = Mutex()
@@ -151,20 +153,26 @@ class TramiteRepository(
 
         tramiteRemotoId = null
         aplicarTramite(data)
-        val idRemoto = buscarIdRemoto(usuarioId, data.tramite)
+        val idRemoto = resolverIdRemoto(data.tramite)
         tramiteRemotoId = idRemoto
         val detalle = idRemoto?.let {
             runCatching { remote.detalle(it) }.registrarFallo("obtener detalle del trámite").getOrNull()
         }
         detalle?.tramite?.let { dto ->
-            tramiteRemotoId = dto.id.takeIf { valor -> valor > 0 } ?: tramiteRemotoId
+            val idDetalle = dto.id.takeIf { valor -> valor > 0 }
+            if (idDetalle != null) {
+                tramiteRemotoId = idDetalle
+                data.tramite.codigo.takeIf { it.isNotBlank() }?.let {
+                    guardarIdRemoto(it, idDetalle)
+                }
+            }
             if (!dto.estado.isNullOrBlank()) {
                 estadoPersistido = valorEnum(dto.estado, estadoPersistido)
             }
             dto.resultado?.let { valor ->
-                estadoTramite = estadoTramite.copy(
-                    resultado = runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()
-                )
+                runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()?.let { resultado ->
+                    estadoTramite = estadoTramite.copy(resultado = resultado)
+                }
             }
         }
         detalle?.tramite?.takeIf { !it.codigo.isNullOrBlank() }?.aResumen() ?: data.aResumen()
@@ -299,7 +307,6 @@ class TramiteRepository(
                     if (enviado) documentosEnviados = documentosEnviados + documento.id
                 }
         }
-        actualizarListaInterno()
     }
 
     private suspend fun actualizarListaInterno() {
@@ -322,8 +329,11 @@ class TramiteRepository(
             } else {
                 tramiteDao.obtenerPorCodigo(dto.codigo)
             }
-            if (!codigoActual.isNullOrBlank() && dto.codigo == codigoActual && tramiteRemotoId == null) {
-                dto.id.takeIf { it > 0 }?.let { tramiteRemotoId = it }
+            if (!codigoActual.isNullOrBlank() && dto.codigo == codigoActual) {
+                dto.id.takeIf { it > 0 }?.let { id ->
+                    tramiteRemotoId = tramiteRemotoId ?: id
+                    guardarIdRemoto(codigoActual!!, id)
+                }
             }
             tramiteDao.guardar(
                 tramite = TramiteEntity(
@@ -364,41 +374,59 @@ class TramiteRepository(
         tramites = tramiteDao.listarPorUsuario(usuarioId).map { it.aResumen() }
     }
 
-    private suspend fun buscarIdRemoto(usuarioId: Long, tramite: TramiteEntity): Long? {
+    private suspend fun buscarIdRemoto(usuarioId: Long, codigo: String): Long? {
         val remotos = runCatching { remote.tramites(usuarioId) }
             .registrarFallo("buscar trámite remoto")
             .getOrNull().orEmpty()
         return remotos.firstOrNull { dto ->
-            dto.id > 0 && dto.codigo == tramite.codigo
-        }?.id?.takeIf { it > 0 } ?: remotos.firstOrNull { dto ->
-            dto.id > 0 && dto.codigo.isNullOrBlank() &&
-                dto.solicitanteId == tramite.solicitanteId &&
-                dto.formatoId == tramite.formatoId
+            dto.id > 0 && dto.codigo == codigo
         }?.id?.takeIf { it > 0 }
     }
 
-    private suspend fun sincronizarRemoto(tramite: TramiteEntity, comentario: String? = null) {
+    private fun leerIdRemoto(codigo: String): Long? =
+        preferencias?.getLong("id_remoto_$codigo", 0L)?.takeIf { it > 0 }
+
+    private fun guardarIdRemoto(codigo: String, id: Long) {
+        if (id <= 0) return
+        preferencias?.edit()?.putLong("id_remoto_$codigo", id)?.apply()
+    }
+
+    private suspend fun resolverIdRemoto(tramite: TramiteEntity): Long? {
+        tramiteRemotoId?.let { return it }
+        leerIdRemoto(tramite.codigo)?.let { id ->
+            tramiteRemotoId = id
+            return id
+        }
+        val id = buscarIdRemoto(tramite.usuarioId, tramite.codigo)
+        if (id != null) {
+            tramiteRemotoId = id
+            guardarIdRemoto(tramite.codigo, id)
+        }
+        return id
+    }
+
+    private suspend fun sincronizarRemoto(tramite: TramiteEntity) {
         val payload = tramite.aRemoto()
-        val idRemoto = tramiteRemotoId ?: buscarIdRemoto(tramite.usuarioId, tramite)
+        val idRemoto = resolverIdRemoto(tramite)
 
         if (idRemoto == null) {
             val creado = runCatching { remote.crear(payload) }
                 .registrarFallo("crear trámite")
                 .getOrNull()
-            creado?.id?.takeIf { it > 0 }?.let { tramiteRemotoId = it }
+            val idCreado = creado?.id?.takeIf { it > 0 }
+                ?: buscarIdRemoto(tramite.usuarioId, tramite.codigo)
+            if (idCreado != null) {
+                tramiteRemotoId = idCreado
+                guardarIdRemoto(tramite.codigo, idCreado)
+            } else {
+                Log.w("TramiteRepository", "No se pudo obtener el id remoto del trámite ${tramite.codigo}")
+            }
             return
         }
 
-        tramiteRemotoId = idRemoto
-        val respuesta = if (payload.resultado.isNullOrBlank()) {
-            runCatching { remote.enviar(idRemoto, payload) }
-                .registrarFallo("actualizar trámite")
-                .getOrNull()
-        } else {
-            runCatching { remote.resolucion(idRemoto, payload, comentario) }
-                .registrarFallo("registrar resolución")
-                .getOrNull()
-        }
+        val respuesta = runCatching { remote.actualizar(idRemoto, payload) }
+            .registrarFallo("actualizar trámite")
+            .getOrNull()
         respuesta?.id?.takeIf { it > 0 }?.let { tramiteRemotoId = it }
     }
 
@@ -409,7 +437,7 @@ class TramiteRepository(
         formatoNombre = formatoNombre,
         fechaCreacion = fechaCreacion,
         estado = estado,
-        resultado = resultado,
+        resultado = resultado.orEmpty(),
         tipoFirma = tipoFirma,
         solicitanteNombre = solicitanteNombre,
         solicitanteId = solicitanteId,

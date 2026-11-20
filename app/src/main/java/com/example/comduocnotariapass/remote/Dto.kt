@@ -48,7 +48,23 @@ data class CrearTramiteRequest(
     @SerializedName("formato_nombre") val formatoNombre: String,
     @SerializedName("fecha_creacion") val fechaCreacion: Long,
     @SerializedName("estado") val estado: String,
-    @SerializedName("resultado") val resultado: String?,
+    @SerializedName("resultado") val resultado: String,
+    @SerializedName("tipo_firma") val tipoFirma: String,
+    @SerializedName("solicitante_nombre") val solicitanteNombre: String,
+    @SerializedName("solicitante_id") val solicitanteId: String,
+    @SerializedName("solicitante_rol") val solicitanteRol: String,
+    @SerializedName("notaria_id") val notariaId: Long? = null,
+    @SerializedName("observacion") val observacion: String? = null
+)
+
+data class ActualizarTramiteRequest(
+    @SerializedName("code") val codigo: String,
+    @SerializedName("usuario_id") val usuarioId: Long,
+    @SerializedName("formato_id") val formatoId: String,
+    @SerializedName("formato_nombre") val formatoNombre: String,
+    @SerializedName("fecha_creacion") val fechaCreacion: Long,
+    @SerializedName("estado") val estado: String,
+    @SerializedName("resultado") val resultado: String,
     @SerializedName("tipo_firma") val tipoFirma: String,
     @SerializedName("solicitante_nombre") val solicitanteNombre: String,
     @SerializedName("solicitante_id") val solicitanteId: String,
@@ -64,7 +80,7 @@ data class TramiteRemoto(
     val formatoNombre: String,
     val fechaCreacion: Long,
     val estado: String,
-    val resultado: String?,
+    val resultado: String,
     val tipoFirma: String,
     val solicitanteNombre: String,
     val solicitanteId: String,

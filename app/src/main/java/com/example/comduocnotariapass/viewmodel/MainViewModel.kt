@@ -31,7 +31,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         usuarioDao = database.usuarioDao(),
         sesionDao = database.sesionDao()
     )
-    private val tramiteRepository = TramiteRepository(database.tramiteDao())
+    private val tramiteRepository = TramiteRepository(
+        tramiteDao = database.tramiteDao(),
+        preferencias = application.getSharedPreferences("notaria_pass", android.content.Context.MODE_PRIVATE)
+    )
 
     // Historial de pantallas visitadas (tipo navegador)
     private val historial = mutableStateListOf(Pantalla.LOGIN)

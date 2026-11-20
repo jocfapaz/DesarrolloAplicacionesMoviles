@@ -2,9 +2,11 @@ package com.example.comduocnotariapass.remote
 
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 /*
  - Interfaz de servicio de Retrofit que define los endpoints de la API REST alojada en Xano.
@@ -58,6 +60,11 @@ interface XanoApi {
     // Crea una nueva solicitud de trámite en estado inicial.
     @POST("tramite")
     suspend fun crear(@Body body: CrearTramiteRequest): TramiteDto
+
+
+    // Actualiza todos los campos de un trámite existente en el grupo de edición de Xano.
+    @PATCH
+    suspend fun actualizar(@Url url: String, @Body body: ActualizarTramiteRequest): TramiteDto
 
 
     // Obtiene la información detallada de un trámite junto con su lista de documentos adjuntos.
