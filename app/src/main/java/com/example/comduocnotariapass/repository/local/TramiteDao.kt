@@ -21,6 +21,18 @@ interface TramiteDao {
     @Query("SELECT * FROM tramites WHERE codigo = :codigo LIMIT 1")
     suspend fun obtenerPorCodigo(codigo: String): TramiteConDocumentos?
 
+    @Transaction
+    @Query(
+        "SELECT * FROM tramites WHERE usuarioId = :usuarioId " +
+            "AND solicitanteId = :solicitanteId AND formatoId = :formatoId " +
+            "ORDER BY fechaCreacion DESC LIMIT 1"
+    )
+    suspend fun obtenerPorSolicitanteFormato(
+        usuarioId: Long,
+        solicitanteId: String,
+        formatoId: String
+    ): TramiteConDocumentos?
+
     @Insert
     suspend fun insertar(tramite: TramiteEntity): Long
 

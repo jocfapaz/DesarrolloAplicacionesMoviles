@@ -80,19 +80,21 @@ class XanoDataSource(private val api: XanoApi = XanoClient.api) {
 
 
     // Crea un nuevo trámite notarial en el sistema.
-    suspend fun crear(
-        usuarioId: Long,
-        formatoId: String,
-        solicitanteNombre: String,
-        solicitanteId: String,
-        solicitanteRol: String
-    ): TramiteDto = api.crear(
+    suspend fun crear(tramite: TramiteRemoto): TramiteDto = api.crear(
         CrearTramiteRequest(
-            usuarioId = usuarioId,
-            formatoId = formatoId,
-            solicitanteNombre = solicitanteNombre,
-            solicitanteId = solicitanteId,
-            solicitanteRol = solicitanteRol
+            codigo = tramite.codigo,
+            usuarioId = tramite.usuarioId,
+            formatoId = tramite.formatoId,
+            formatoNombre = tramite.formatoNombre,
+            fechaCreacion = tramite.fechaCreacion,
+            estado = tramite.estado,
+            resultado = tramite.resultado,
+            tipoFirma = tramite.tipoFirma,
+            solicitanteNombre = tramite.solicitanteNombre,
+            solicitanteId = tramite.solicitanteId,
+            solicitanteRol = tramite.solicitanteRol,
+            notariaId = tramite.notariaId,
+            observacion = tramite.observacion
         )
     )
 
@@ -111,8 +113,23 @@ class XanoDataSource(private val api: XanoApi = XanoClient.api) {
 
 
     // Envía un trámite a revisión indicando el tipo de firma elegido.
-    suspend fun enviar(id: Long, tipoFirma: String): TramiteDto =
-        api.enviar(id, EnviarRequest(tipoFirma))
+    suspend fun enviar(id: Long, tramite: TramiteRemoto): TramiteDto = api.enviar(
+        id,
+        EnviarRequest(
+            tipoFirma = tramite.tipoFirma,
+            codigo = tramite.codigo,
+            formatoId = tramite.formatoId,
+            formatoNombre = tramite.formatoNombre,
+            fechaCreacion = tramite.fechaCreacion,
+            estado = tramite.estado,
+            resultado = tramite.resultado,
+            solicitanteNombre = tramite.solicitanteNombre,
+            solicitanteId = tramite.solicitanteId,
+            solicitanteRol = tramite.solicitanteRol,
+            notariaId = tramite.notariaId,
+            observacion = tramite.observacion
+        )
+    )
 
 
     // Consulta el estado actual de un trámite.
@@ -120,8 +137,25 @@ class XanoDataSource(private val api: XanoApi = XanoClient.api) {
 
 
     // Registra el dictamen o resolución final de un trámite.
-    suspend fun resolucion(id: Long, resultado: String, comentario: String? = null): TramiteDto =
-        api.resolucion(id, ResolucionRequest(resultado, comentario))
+    suspend fun resolucion(id: Long, tramite: TramiteRemoto, comentario: String? = null): TramiteDto =
+        api.resolucion(
+            id,
+            ResolucionRequest(
+                resultado = tramite.resultado.orEmpty(),
+                comentario = comentario,
+                codigo = tramite.codigo,
+                formatoId = tramite.formatoId,
+                formatoNombre = tramite.formatoNombre,
+                fechaCreacion = tramite.fechaCreacion,
+                estado = tramite.estado,
+                tipoFirma = tramite.tipoFirma,
+                solicitanteNombre = tramite.solicitanteNombre,
+                solicitanteId = tramite.solicitanteId,
+                solicitanteRol = tramite.solicitanteRol,
+                notariaId = tramite.notariaId,
+                observacion = tramite.observacion
+            )
+        )
 
 
     // Envía una notificación vinculada a un trámite.

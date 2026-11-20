@@ -142,19 +142,80 @@ class XanoPayloadTest {
 
     @Test
     fun requestsSeSerializanEnSnakeCase() {
-        val crear = gson.toJson(CrearTramiteRequest(1L, "2", "Juan", "111", "Titular"))
-        assertTrue(crear.contains("\"usuario_id\""))
-        assertTrue(crear.contains("\"formato_id\""))
-        assertTrue(crear.contains("\"solicitante_nombre\""))
+        val crear = gson.toJson(
+            CrearTramiteRequest(
+                codigo = "NX-123456",
+                usuarioId = 1L,
+                formatoId = "2",
+                formatoNombre = "Declaración Jurada",
+                fechaCreacion = 1700000000000L,
+                estado = "BORRADOR",
+                resultado = null,
+                tipoFirma = "NOTARIADA",
+                solicitanteNombre = "Juan",
+                solicitanteId = "111",
+                solicitanteRol = "PERSONA_NATURAL"
+            )
+        )
+        assertTrue(crear.contains("\"code\":\"NX-123456\""))
+        assertTrue(crear.contains("\"usuario_id\":1"))
+        assertTrue(crear.contains("\"formato_id\":\"2\""))
+        assertTrue(crear.contains("\"formato_nombre\":\"Declaración Jurada\""))
+        assertTrue(crear.contains("\"fecha_creacion\":1700000000000"))
+        assertTrue(crear.contains("\"estado\":\"BORRADOR\""))
+        assertTrue(crear.contains("\"tipo_firma\":\"NOTARIADA\""))
+        assertTrue(crear.contains("\"solicitante_nombre\":\"Juan\""))
+        assertTrue(crear.contains("\"solicitante_id\":\"111\""))
+        assertTrue(crear.contains("\"solicitante_rol\":\"PERSONA_NATURAL\""))
         assertFalse(crear.contains("usuarioId"))
+        assertFalse(crear.contains("fechaCreacion"))
 
         val documento = gson.toJson(DocumentoRequest("a.pdf", "application/pdf", 10L))
         assertTrue(documento.contains("\"mime_type\""))
         assertTrue(documento.contains("\"tamano_bytes\""))
 
-        val envio = gson.toJson(EnviarRequest("NOTARIADA"))
-        assertTrue(envio.contains("\"tipo_firma\""))
+        val envio = gson.toJson(
+            EnviarRequest(
+                tipoFirma = "NOTARIADA",
+                codigo = "NX-123456",
+                estado = "EN_REVISION",
+                fechaCreacion = 1700000000000L
+            )
+        )
+        assertTrue(envio.contains("\"tipo_firma\":\"NOTARIADA\""))
+        assertTrue(envio.contains("\"code\":\"NX-123456\""))
+        assertTrue(envio.contains("\"estado\":\"EN_REVISION\""))
+        assertTrue(envio.contains("\"fecha_creacion\":1700000000000"))
 
         println("OK: requests serializados con nombres snake_case")
+    }
+
+    @Test
+    fun resolucionIncluyeTodosLosCamposDelTramite() {
+        val json = gson.toJson(
+            ResolucionRequest(
+                resultado = "FINALIZADO",
+                comentario = "Aprobado",
+                codigo = "NX-654321",
+                formatoId = "3",
+                formatoNombre = "Autorización de Viaje",
+                fechaCreacion = 1700000000000L,
+                estado = "FINALIZADO",
+                tipoFirma = "AVANZADA",
+                solicitanteNombre = "Ana",
+                solicitanteId = "USR-4",
+                solicitanteRol = "PERSONA_NATURAL"
+            )
+        )
+
+        assertTrue(json.contains("\"resultado\":\"FINALIZADO\""))
+        assertTrue(json.contains("\"code\":\"NX-654321\""))
+        assertTrue(json.contains("\"fecha_creacion\":1700000000000"))
+        assertTrue(json.contains("\"estado\":\"FINALIZADO\""))
+        assertTrue(json.contains("\"tipo_firma\":\"AVANZADA\""))
+        assertTrue(json.contains("\"solicitante_id\":\"USR-4\""))
+        assertFalse(json.contains("solicitanteId"))
+
+        println("OK: resolución serializada con todos los campos del trámite")
     }
 }

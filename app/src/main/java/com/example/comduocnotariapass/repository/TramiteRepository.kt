@@ -1,5 +1,6 @@
 package com.example.comduocnotariapass.repository
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import com.example.comduocnotariapass.model.ResultadoRevision
 import com.example.comduocnotariapass.model.RolSolicitante
 import com.example.comduocnotariapass.model.TipoFirma
 import com.example.comduocnotariapass.model.TramiteResumen
+import com.example.comduocnotariapass.remote.TramiteRemoto
 import com.example.comduocnotariapass.remote.XanoDataSource
 import com.example.comduocnotariapass.remote.aFormato
 import com.example.comduocnotariapass.remote.aResumen
@@ -147,8 +149,13 @@ class TramiteRepository(
         val data = tramiteDao.obtenerPorId(id) ?: return@withLock null
         if (data.tramite.usuarioId != usuarioId) return@withLock null
 
-        val detalle = runCatching { remote.detalle(id) }.getOrNull()
+        tramiteRemotoId = null
         aplicarTramite(data)
+        val idRemoto = buscarIdRemoto(usuarioId, data.tramite)
+        tramiteRemotoId = idRemoto
+        val detalle = idRemoto?.let {
+            runCatching { remote.detalle(it) }.registrarFallo("obtener detalle del trámite").getOrNull()
+        }
         detalle?.tramite?.let { dto ->
             tramiteRemotoId = dto.id.takeIf { valor -> valor > 0 } ?: tramiteRemotoId
             if (!dto.estado.isNullOrBlank()) {
@@ -169,16 +176,16 @@ class TramiteRepository(
         guardarBorradorInterno()
 
         tramiteRemotoId?.let { id ->
-            runCatching { remote.enviar(id, tipoFirmaSeleccionado.name) }
             runCatching {
                 remote.notificacion(id, "El trámite ${codigoActual.orEmpty()} fue enviado al notario.")
-            }
+            }.registrarFallo("enviar notificación")
         }
-        actualizarListaInterno()
     }
 
     suspend fun simularResolucion() = mutex.withLock {
-        val estadoRemoto = tramiteRemotoId?.let { id -> runCatching { remote.estado(id) }.getOrNull() }
+        val estadoRemoto = tramiteRemotoId?.let { id ->
+            runCatching { remote.estado(id) }.registrarFallo("consultar estado").getOrNull()
+        }
         val resultado = estadoRemoto?.resultado?.let { valor ->
             runCatching { ResultadoRevision.valueOf(valor.uppercase()) }.getOrNull()
         } ?: estadoTramite.siguienteResultado()
@@ -189,9 +196,6 @@ class TramiteRepository(
             ResultadoRevision.FINALIZADO -> EstadoPersistido.FINALIZADO
         }
         guardarBorradorInterno()
-        tramiteRemotoId?.let { id ->
-            runCatching { remote.resolucion(id, resultado.name) }
-        }
     }
 
     suspend fun prepararReenvio() = mutex.withLock {
@@ -244,28 +248,9 @@ class TramiteRepository(
         val usuarioId = usuarioActualId ?: return
 
         val fecha = fechaCreacionActual ?: System.currentTimeMillis()
-        var codigo = codigoActual ?: generarCodigo()
+        val codigo = codigoActual ?: generarCodigo()
         fechaCreacionActual = fecha
         codigoActual = codigo
-
-        if (tramiteActualId == null) {
-            val creado = runCatching {
-                remote.crear(
-                    usuarioId = usuarioId,
-                    formatoId = formatoSeleccionado.id,
-                    solicitanteNombre = datosSolicitante.nombre,
-                    solicitanteId = datosSolicitante.id,
-                    solicitanteRol = datosSolicitante.rol.name
-                )
-            }.getOrNull()
-            if (creado != null) {
-                tramiteRemotoId = creado.id.takeIf { it > 0 }
-                if (!creado.codigo.isNullOrBlank()) {
-                    codigo = creado.codigo
-                    codigoActual = codigo
-                }
-            }
-        }
 
         val entity = TramiteEntity(
             id = tramiteActualId ?: 0,
@@ -298,6 +283,8 @@ class TramiteRepository(
             estadoTramite = estadoTramite.copy(id = codigo)
         }
 
+        sincronizarRemoto(entity)
+
         tramiteRemotoId?.let { idRemoto ->
             documentosPropios.filter { it.uri != null && it.id !in documentosEnviados }
                 .forEach { documento ->
@@ -308,7 +295,7 @@ class TramiteRepository(
                             documento.mimeType,
                             documento.tamanoBytes
                         )
-                    }.isSuccess
+                    }.registrarFallo("adjuntar documento").isSuccess
                     if (enviado) documentosEnviados = documentosEnviados + documento.id
                 }
         }
@@ -322,15 +309,29 @@ class TramiteRepository(
             return
         }
 
-        val remotos = runCatching { remote.tramites(usuarioId) }.getOrNull().orEmpty()
+        val remotos = runCatching { remote.tramites(usuarioId) }
+            .registrarFallo("listar trámites")
+            .getOrNull().orEmpty()
         remotos.forEach { dto ->
-            if (dto.codigo.isNullOrBlank()) return@forEach
-            val local = tramiteDao.obtenerPorCodigo(dto.codigo)
+            val local = if (dto.codigo.isNullOrBlank()) {
+                tramiteDao.obtenerPorSolicitanteFormato(
+                    usuarioId = usuarioId,
+                    solicitanteId = dto.solicitanteId.orEmpty(),
+                    formatoId = dto.formatoId.orEmpty()
+                )
+            } else {
+                tramiteDao.obtenerPorCodigo(dto.codigo)
+            }
+            if (!codigoActual.isNullOrBlank() && dto.codigo == codigoActual && tramiteRemotoId == null) {
+                dto.id.takeIf { it > 0 }?.let { tramiteRemotoId = it }
+            }
             tramiteDao.guardar(
                 tramite = TramiteEntity(
                     id = local?.tramite?.id ?: 0,
                     usuarioId = usuarioId,
-                    codigo = dto.codigo,
+                    codigo = dto.codigo.orEmpty().ifBlank {
+                        local?.tramite?.codigo ?: generarCodigo()
+                    },
                     formatoId = dto.formatoId.orEmpty().ifBlank {
                         local?.tramite?.formatoId ?: formatoSeleccionado.id
                     },
@@ -361,6 +362,62 @@ class TramiteRepository(
         }
 
         tramites = tramiteDao.listarPorUsuario(usuarioId).map { it.aResumen() }
+    }
+
+    private suspend fun buscarIdRemoto(usuarioId: Long, tramite: TramiteEntity): Long? {
+        val remotos = runCatching { remote.tramites(usuarioId) }
+            .registrarFallo("buscar trámite remoto")
+            .getOrNull().orEmpty()
+        return remotos.firstOrNull { dto ->
+            dto.id > 0 && dto.codigo == tramite.codigo
+        }?.id?.takeIf { it > 0 } ?: remotos.firstOrNull { dto ->
+            dto.id > 0 && dto.codigo.isNullOrBlank() &&
+                dto.solicitanteId == tramite.solicitanteId &&
+                dto.formatoId == tramite.formatoId
+        }?.id?.takeIf { it > 0 }
+    }
+
+    private suspend fun sincronizarRemoto(tramite: TramiteEntity, comentario: String? = null) {
+        val payload = tramite.aRemoto()
+        val idRemoto = tramiteRemotoId ?: buscarIdRemoto(tramite.usuarioId, tramite)
+
+        if (idRemoto == null) {
+            val creado = runCatching { remote.crear(payload) }
+                .registrarFallo("crear trámite")
+                .getOrNull()
+            creado?.id?.takeIf { it > 0 }?.let { tramiteRemotoId = it }
+            return
+        }
+
+        tramiteRemotoId = idRemoto
+        val respuesta = if (payload.resultado.isNullOrBlank()) {
+            runCatching { remote.enviar(idRemoto, payload) }
+                .registrarFallo("actualizar trámite")
+                .getOrNull()
+        } else {
+            runCatching { remote.resolucion(idRemoto, payload, comentario) }
+                .registrarFallo("registrar resolución")
+                .getOrNull()
+        }
+        respuesta?.id?.takeIf { it > 0 }?.let { tramiteRemotoId = it }
+    }
+
+    private fun TramiteEntity.aRemoto(): TramiteRemoto = TramiteRemoto(
+        codigo = codigo,
+        usuarioId = usuarioId,
+        formatoId = formatoId,
+        formatoNombre = formatoNombre,
+        fechaCreacion = fechaCreacion,
+        estado = estado,
+        resultado = resultado,
+        tipoFirma = tipoFirma,
+        solicitanteNombre = solicitanteNombre,
+        solicitanteId = solicitanteId,
+        solicitanteRol = solicitanteRol
+    )
+
+    private fun <T> Result<T>.registrarFallo(accion: String): Result<T> = onFailure {
+        Log.w("TramiteRepository", "Fallo al $accion en Xano", it)
     }
 
     private suspend fun cargarFormatosRemotos() {

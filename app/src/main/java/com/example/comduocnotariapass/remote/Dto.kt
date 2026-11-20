@@ -42,11 +42,35 @@ data class RegistroRequest(
 
 // Datos requeridos para iniciar o crear una nueva solicitud de trámite notarial.
 data class CrearTramiteRequest(
+    @SerializedName("code") val codigo: String,
     @SerializedName("usuario_id") val usuarioId: Long,
     @SerializedName("formato_id") val formatoId: String,
+    @SerializedName("formato_nombre") val formatoNombre: String,
+    @SerializedName("fecha_creacion") val fechaCreacion: Long,
+    @SerializedName("estado") val estado: String,
+    @SerializedName("resultado") val resultado: String?,
+    @SerializedName("tipo_firma") val tipoFirma: String,
     @SerializedName("solicitante_nombre") val solicitanteNombre: String,
     @SerializedName("solicitante_id") val solicitanteId: String,
-    @SerializedName("solicitante_rol") val solicitanteRol: String
+    @SerializedName("solicitante_rol") val solicitanteRol: String,
+    @SerializedName("notaria_id") val notariaId: Long? = null,
+    @SerializedName("observacion") val observacion: String? = null
+)
+
+data class TramiteRemoto(
+    val codigo: String,
+    val usuarioId: Long,
+    val formatoId: String,
+    val formatoNombre: String,
+    val fechaCreacion: Long,
+    val estado: String,
+    val resultado: String?,
+    val tipoFirma: String,
+    val solicitanteNombre: String,
+    val solicitanteId: String,
+    val solicitanteRol: String,
+    val notariaId: Long? = null,
+    val observacion: String? = null
 )
 
 
@@ -59,13 +83,37 @@ data class DocumentoRequest(
 
 
 // Petición para confirmar el envío de un trámite especificando la modalidad de firma.
-data class EnviarRequest(@SerializedName("tipo_firma") val tipoFirma: String)
+data class EnviarRequest(
+    @SerializedName("tipo_firma") val tipoFirma: String,
+    @SerializedName("code") val codigo: String? = null,
+    @SerializedName("formato_id") val formatoId: String? = null,
+    @SerializedName("formato_nombre") val formatoNombre: String? = null,
+    @SerializedName("fecha_creacion") val fechaCreacion: Long? = null,
+    @SerializedName("estado") val estado: String? = null,
+    @SerializedName("resultado") val resultado: String? = null,
+    @SerializedName("solicitante_nombre") val solicitanteNombre: String? = null,
+    @SerializedName("solicitante_id") val solicitanteId: String? = null,
+    @SerializedName("solicitante_rol") val solicitanteRol: String? = null,
+    @SerializedName("notaria_id") val notariaId: Long? = null,
+    @SerializedName("observacion") val observacion: String? = null
+)
 
 
 // Petición utilizada por un revisor o notario para emitir el dictamen de un trámite.
 data class ResolucionRequest(
     @SerializedName("resultado") val resultado: String,
-    @SerializedName("comentario") val comentario: String? = null
+    @SerializedName("comentario") val comentario: String? = null,
+    @SerializedName("code") val codigo: String? = null,
+    @SerializedName("formato_id") val formatoId: String? = null,
+    @SerializedName("formato_nombre") val formatoNombre: String? = null,
+    @SerializedName("fecha_creacion") val fechaCreacion: Long? = null,
+    @SerializedName("estado") val estado: String? = null,
+    @SerializedName("tipo_firma") val tipoFirma: String? = null,
+    @SerializedName("solicitante_nombre") val solicitanteNombre: String? = null,
+    @SerializedName("solicitante_id") val solicitanteId: String? = null,
+    @SerializedName("solicitante_rol") val solicitanteRol: String? = null,
+    @SerializedName("notaria_id") val notariaId: Long? = null,
+    @SerializedName("observacion") val observacion: String? = null
 )
 
 
